@@ -11,13 +11,28 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "dev": "tsc --project tsconfig.json --watch"
+    "dev": "tsc --project tsconfig.json --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@conversokit/shared": "workspace:*",
+    "@conversokit/themes": "workspace:*",
+    "zod": "^3.22.2"
   },
   "peerDependencies": {
     "react": "^18.0.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.2.0",
+    "@testing-library/jest-dom": "^6.4.0",
+    "@types/react": "^18.0.28",
+    "jsdom": "^24.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react-dom": "^18.0.11",
     "typescript": "^5.2.0",
-    "@types/react": "^18.0.28"
+    "vitest": "^1.6.0"
   }
 }

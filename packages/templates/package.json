@@ -10,7 +10,10 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "dev": "tsc --project tsconfig.json --watch"
+    "dev": "tsc --project tsconfig.json --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"no tests yet\""
   },
   "dependencies": {
     "@conversokit/widgets": "workspace:*",

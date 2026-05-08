@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { ProductCarousel, ProductCardProps } from '@conversokit/widgets';
+import {
+  ProductCarousel,
+  type ProductCardProps
+} from '@conversokit/widgets';
+import {
+  ThemeProvider,
+  themes,
+  type Theme
+} from '@conversokit/themes';
 
-/**
- * Simple bridge function that calls the MCP server's tools API.  In a
- * production application you would use the official OpenAI Apps SDK bridge
- * (window.openai) instead of direct fetch calls.  For the purposes of this
- * example we perform a POST request to the local server defined in
- * `apps/mcp-server`.
- */
-async function callTool<TInput extends object, TOutput>(name: string, input: TInput): Promise<TOutput> {
+async function callTool<TInput extends object, TOutput>(
+  name: string,
+  input: TInput
+): Promise<TOutput> {
   const response = await fetch(`http://localhost:3000/tools/${name}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input)
   });
   if (!response.ok) {
@@ -22,18 +24,22 @@ async function callTool<TInput extends object, TOutput>(name: string, input: TIn
   return (await response.json()) as TOutput;
 }
 
+const themeNames = Object.keys(themes);
+
 const App: React.FC = () => {
   const [items, setItems] = useState<ProductCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [themeName, setThemeName] = useState<string>('light');
+  const theme: Theme = themes[themeName];
 
   useEffect(() => {
-    // Fetch initial products on mount.  We search with an empty query to
-    // return all products from our example dataset.  You can modify this
-    // behaviour to suit your application.
     async function fetchProducts() {
       try {
-        const result = await callTool('search_products', { query: '', limit: 10 });
+        const result = await callTool<
+          { query: string; limit: number },
+          { items: ProductCardProps[] }
+        >('search_products', { query: '', limit: 10 });
         setItems(result.items);
       } catch (err) {
         console.error(err);
@@ -48,7 +54,10 @@ const App: React.FC = () => {
     event.preventDefault();
     setLoading(true);
     try {
-      const result = await callTool('search_products', { query, limit: 10 });
+      const result = await callTool<
+        { query: string; limit: number },
+        { items: ProductCardProps[] }
+      >('search_products', { query, limit: 10 });
       setItems(result.items);
     } catch (err) {
       console.error(err);
@@ -58,24 +67,85 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>ConversoKit Widget Demo</h1>
-      <form onSubmit={handleSearch} style={{ marginBottom: 16 }}>
+    <ThemeProvider
+      theme={theme}
+      style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
+    >
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--ck-spacing-4)',
+          gap: 'var(--ck-spacing-4)',
+          flexWrap: 'wrap'
+        }}
+      >
+        <h1 style={{ margin: 0 }}>ConversoKit Widget Demo</h1>
+        <label
+          style={{ fontSize: 'var(--ck-font-size-sm)', color: 'var(--ck-muted)' }}
+        >
+          Theme:{' '}
+          <select
+            value={themeName}
+            onChange={(e) => setThemeName(e.target.value)}
+            style={{
+              padding: '6px 8px',
+              borderRadius: 'var(--ck-radius-sm)',
+              border: '1px solid var(--ck-border)',
+              backgroundColor: 'var(--ck-surface)',
+              color: 'var(--ck-text)'
+            }}
+          >
+            {themeNames.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </label>
+      </header>
+
+      <form
+        onSubmit={handleSearch}
+        style={{ marginBottom: 'var(--ck-spacing-4)' }}
+      >
         <input
           type="text"
           placeholder="Search products..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={{ padding: 8, width: 200, marginRight: 8 }}
+          style={{
+            padding: '8px 10px',
+            width: 240,
+            marginRight: 'var(--ck-spacing-2)',
+            borderRadius: 'var(--ck-radius-sm)',
+            border: '1px solid var(--ck-border)',
+            backgroundColor: 'var(--ck-surface)',
+            color: 'var(--ck-text)'
+          }}
         />
-        <button type="submit" style={{ padding: '8px 12px' }}>Search</button>
+        <button
+          type="submit"
+          style={{
+            padding: '8px 14px',
+            borderRadius: 'var(--ck-radius-sm)',
+            border: 'none',
+            backgroundColor: 'var(--ck-primary)',
+            color: 'var(--ck-primary-foreground)',
+            cursor: 'pointer'
+          }}
+        >
+          Search
+        </button>
       </form>
+
       {loading ? (
-        <p>Loading products…</p>
+        <p style={{ color: 'var(--ck-muted)' }}>Loading products…</p>
       ) : (
         <ProductCarousel items={items} />
       )}
-    </div>
+    </ThemeProvider>
   );
 };
 

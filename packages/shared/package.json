@@ -10,12 +10,16 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "dev": "tsc --project tsconfig.json --watch"
+    "dev": "tsc --project tsconfig.json --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "typescript": "^5.2.0"
+    "typescript": "^5.2.0",
+    "vitest": "^1.6.0"
   }
 }

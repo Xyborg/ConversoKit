@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
+import App from './App.js';
 
 // Mount the root React component.  Vite injects the root element into
 // index.html.  StrictMode helps catch subtle bugs in development.

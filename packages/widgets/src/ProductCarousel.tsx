@@ -1,36 +1,59 @@
 import React from 'react';
-import { ProductCard, ProductCardProps } from './ProductCard';
+import { z } from 'zod';
+import {
+  productSchema,
+  defaultWidgetConfig,
+  type WidgetMeta
+} from '@conversokit/shared';
+import { ProductCard, type ProductCardProps } from './ProductCard.js';
 
-/**
- * Props for the `ProductCarousel` component.  Accepts an array of
- * `ProductCardProps` and renders them horizontally with a scrollable container.
- */
 export interface ProductCarouselProps {
   items: ProductCardProps[];
+  onItemAction?: (item: ProductCardProps) => void;
 }
 
-/**
- * A horizontally scrollable carousel of product cards.  This component simply
- * maps each item in the `items` array to a `ProductCard`.  Styling is
- * intentionally minimal; in production you might integrate a slider library
- * or add arrows for navigation.
- */
-export const ProductCarousel: React.FC<ProductCarouselProps> = ({ items }) => {
+const wrapperStyle: React.CSSProperties = {
+  display: 'flex',
+  overflowX: 'auto',
+  gap: 'var(--ck-spacing-4)',
+  padding: 'var(--ck-spacing-2)',
+  scrollSnapType: 'x mandatory'
+};
+
+const itemStyle: React.CSSProperties = {
+  flex: '0 0 auto',
+  scrollSnapAlign: 'start'
+};
+
+export const ProductCarousel: React.FC<ProductCarouselProps> = ({
+  items,
+  onItemAction
+}) => {
   return (
-    <div
-      style={{
-        display: 'flex',
-        overflowX: 'auto',
-        gap: 16,
-        padding: 8,
-        scrollSnapType: 'x mandatory'
-      }}
-    >
+    <div style={wrapperStyle}>
       {items.map((item) => (
-        <div key={item.id} style={{ flex: '0 0 auto', scrollSnapAlign: 'start' }}>
-          <ProductCard {...item} />
+        <div key={item.id} style={itemStyle}>
+          <ProductCard
+            {...item}
+            onAction={onItemAction ? () => onItemAction(item) : item.onAction}
+          />
         </div>
       ))}
     </div>
   );
+};
+
+export const productCarouselSchema = z.object({
+  items: z.array(productSchema)
+});
+
+export const ProductCarouselMeta: WidgetMeta = {
+  name: 'ProductCarousel',
+  category: 'commerce',
+  version: '0.1.0',
+  config: {
+    ...defaultWidgetConfig,
+    permissions: { allowsExternalLinks: true }
+  },
+  schema: productCarouselSchema
 };

@@ -1,6 +1,12 @@
-// Re‑export all available tool definitions from this directory.
-// When you add new tools, import and append them to the `tools` array below.
-
+import type { Tool } from '@conversokit/shared';
 import { searchProductsTool } from './searchProducts.js';
+import { getCartTool } from './getCart.js';
+import { setCartTool } from './setCart.js';
+import { createCheckoutTool } from './createCheckout.js';
 
-export const tools = [searchProductsTool];
+export const tools: Tool[] = [
+  searchProductsTool,
+  getCartTool,
+  setCartTool,
+  createCheckoutTool
+];

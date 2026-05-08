@@ -12,9 +12,16 @@ import type { Tool, ToolContext } from '@conversokit/shared';
 import { tools } from './tools/index.js';
 import { consentMiddleware, requireConsent } from './middleware/consent.js';
 import { userDataRouter } from './routes/userdata.js';
+import { webhookRouter } from './routes/webhooks.js';
+import { adminRouter } from './routes/admin.js';
 
 const app = express();
 app.use(cors());
+
+// Webhook routes need raw body for signature verification, so mount them
+// BEFORE express.json() (which would consume the body).
+app.use(webhookRouter());
+
 app.use(express.json());
 
 const apiKeys = (process.env.CONVERSOKIT_API_KEYS ?? '')
@@ -69,7 +76,10 @@ app.post('/tools/:name', async (req, res) => {
     return res.status(404).json({ error: 'Tool not found' });
   }
 
-  if (tool.permissions.requiresAuth && (!req.conversokitAuth || !req.conversokitAuth.ok)) {
+  if (
+    tool.permissions.requiresAuth &&
+    (!req.conversokitAuth || !req.conversokitAuth.ok)
+  ) {
     return res
       .status(401)
       .json({ error: 'Authentication required for this tool' });
@@ -95,6 +105,7 @@ app.post('/tools/:name', async (req, res) => {
 });
 
 app.use(userDataRouter());
+app.use(adminRouter());
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

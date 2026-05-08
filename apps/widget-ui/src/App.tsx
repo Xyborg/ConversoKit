@@ -51,6 +51,7 @@ const CommerceTab: React.FC = () => {
   const [items, setItems] = useState<ProductCardProps[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [stage, setStage] = useState<'browse' | 'cart'>('browse');
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,18 +71,45 @@ const CommerceTab: React.FC = () => {
     };
   }, [bridge]);
 
+  const handleCheckout = async () => {
+    setCheckoutError(null);
+    try {
+      // Persist cart server-side, then start checkout.
+      await bridge.callTool('set_cart', { items: cart, currency: 'USD' });
+      const result = (await bridge.callTool('create_checkout', {
+        successUrl: window.location.origin + '/?status=success',
+        cancelUrl: window.location.origin + '/?status=cancelled'
+      })) as { url: string; provider: string };
+      const opener = window.openai?.openExternalUrl;
+      if (opener) {
+        await opener(result.url);
+      } else {
+        window.location.href = result.url;
+      }
+    } catch (err) {
+      setCheckoutError(
+        err instanceof Error ? err.message : 'Checkout failed'
+      );
+    }
+  };
+
   if (stage === 'cart') {
     return (
       <div style={sectionStyle}>
-        <CTABanner
-          title="Order ready"
-          description="This is mock data — Stripe wires up in Phase 3."
-          variant="info"
-        />
+        {checkoutError && (
+          <CTABanner
+            title="Checkout failed"
+            description={checkoutError}
+            variant="danger"
+          />
+        )}
         <CheckoutSummary
-          summary={{ ...EXAMPLE_CHECKOUT_SUMMARY, items: cart.length ? cart : EXAMPLE_CHECKOUT_SUMMARY.items }}
+          summary={{
+            ...EXAMPLE_CHECKOUT_SUMMARY,
+            items: cart.length ? cart : EXAMPLE_CHECKOUT_SUMMARY.items
+          }}
           onBack={() => setStage('browse')}
-          onCheckout={() => alert('Checkout will redirect to Stripe in Phase 3')}
+          onCheckout={handleCheckout}
         />
       </div>
     );

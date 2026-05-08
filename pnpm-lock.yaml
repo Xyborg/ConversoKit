@@ -44,6 +44,9 @@ importers:
       '@conversokit/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@conversokit/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@conversokit/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -53,6 +56,9 @@ importers:
       express:
         specifier: ^4.18.2
         version: 4.22.1
+      stripe:
+        specifier: ^14.0.0
+        version: 14.25.0
       zod:
         specifier: ^3.22.2
         version: 3.25.76
@@ -164,7 +170,14 @@ importers:
         version: 1.6.1(@types/node@20.19.40)(jsdom@24.1.3)
 
   packages/integrations:
+    dependencies:
+      stripe:
+        specifier: ^14.0.0
+        version: 14.25.0
     devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.40
       typescript:
         specifier: ^5.2.0
         version: 5.9.3
@@ -2379,6 +2392,10 @@ packages:
 
   strip-literal@2.1.1:
     resolution: {integrity: sha512-631UJ6O00eNGfMiWG78ck80dfBab8X6IVFB51jZK5Icd7XAs60Z5y7QdSd/wGIklnWvRbUNloVzhOKKmutxQ6Q==}
+
+  stripe@14.25.0:
+    resolution: {integrity: sha512-wQS3GNMofCXwH8TSje8E1SE8zr6ODiGtHQgPtO95p9Mb4FhKC9jvXR2NUTpZ9ZINlckJcFidCmaTFV4P6vsb9g==}
+    engines: {node: '>=12.*'}
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -5092,6 +5109,11 @@ snapshots:
   strip-literal@2.1.1:
     dependencies:
       js-tokens: 9.0.1
+
+  stripe@14.25.0:
+    dependencies:
+      '@types/node': 20.19.40
+      qs: 6.15.1
 
   supports-color@7.2.0:
     dependencies:

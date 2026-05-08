@@ -1,10 +1,12 @@
 import type { WidgetMeta } from '@conversokit/shared';
 import { ProductCardMeta } from './ProductCard.js';
 import { ProductCarouselMeta } from './ProductCarousel.js';
+import { ConsentBannerMeta } from './ConsentBanner.js';
 
 export const widgetRegistry: Record<string, WidgetMeta> = {
   [ProductCardMeta.name]: ProductCardMeta,
-  [ProductCarouselMeta.name]: ProductCarouselMeta
+  [ProductCarouselMeta.name]: ProductCarouselMeta,
+  [ConsentBannerMeta.name]: ConsentBannerMeta
 };
 
 export function registerWidget(meta: WidgetMeta): void {

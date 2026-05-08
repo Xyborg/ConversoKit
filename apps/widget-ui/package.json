@@ -12,6 +12,7 @@
     "test": "echo \"no tests yet\""
   },
   "dependencies": {
+    "@conversokit/bridge": "workspace:*",
     "@conversokit/shared": "workspace:*",
     "@conversokit/themes": "workspace:*",
     "@conversokit/widgets": "workspace:*",

@@ -63,6 +63,9 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/express-serve-static-core':
+        specifier: ^4.19.0
+        version: 4.19.8
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.40
@@ -78,6 +81,9 @@ importers:
 
   apps/widget-ui:
     dependencies:
+      '@conversokit/bridge':
+        specifier: workspace:*
+        version: link:../../packages/bridge
       '@conversokit/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -111,16 +117,51 @@ importers:
         version: 5.4.21(@types/node@20.19.40)
 
   packages/auth:
+    dependencies:
+      jose:
+        specifier: ^5.2.4
+        version: 5.10.0
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/express-serve-static-core':
+        specifier: ^4.19.0
+        version: 4.19.8
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.40
       express:
         specifier: ^4.18.2
         version: 4.22.1
       typescript:
         specifier: ^5.2.0
         version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@20.19.40)(jsdom@24.1.3)
+
+  packages/bridge:
+    dependencies:
+      '@conversokit/shared':
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^3.22.2
+        version: 3.25.76
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.28
+        version: 18.3.28
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      typescript:
+        specifier: ^5.2.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@20.19.40)(jsdom@24.1.3)
 
   packages/integrations:
     devDependencies:
@@ -1702,6 +1743,9 @@ packages:
   iterator.prototype@1.1.5:
     resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
     engines: {node: '>= 0.4'}
+
+  jose@5.10.0:
+    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -4335,6 +4379,8 @@ snapshots:
       get-proto: 1.0.1
       has-symbols: 1.1.0
       set-function-name: 2.0.2
+
+  jose@5.10.0: {}
 
   js-tokens@4.0.0: {}
 

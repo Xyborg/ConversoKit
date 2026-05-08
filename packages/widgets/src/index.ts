@@ -7,6 +7,12 @@ export {
 } from './ProductCarousel.js';
 export type { ProductCarouselProps } from './ProductCarousel.js';
 export {
+  ConsentBanner,
+  ConsentBannerMeta,
+  consentBannerSchema
+} from './ConsentBanner.js';
+export type { ConsentBannerProps } from './ConsentBanner.js';
+export {
   widgetRegistry,
   registerWidget,
   getWidget,

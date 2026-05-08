@@ -1,0 +1,23 @@
+{
+  "name": "@conversokit/templates",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsc --project tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@conversokit/widgets": "workspace:*",
+    "@conversokit/shared": "workspace:*",
+    "@conversokit/integrations": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.0"
+  }
+}

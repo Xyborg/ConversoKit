@@ -9,7 +9,6 @@ import {
   MultiStepForm,
   ProductCarousel,
   TimeSlotSelector,
-  type LeadFormValues,
   type ProductCardProps
 } from '@conversokit/widgets';
 import {
@@ -132,19 +131,47 @@ const CommerceTab: React.FC = () => {
 };
 
 const BookingTab: React.FC = () => {
+  const bridge = useBridge();
   const [date, setDate] = useState<string | undefined>(undefined);
   const [slot, setSlot] = useState<TimeSlot | undefined>(undefined);
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Use the example date as the only "available" date for the demo.
+  const availableDates = [EXAMPLE_AVAILABILITY.date];
+
+  const handleConfirm = async () => {
+    if (!slot) return;
+    setError(null);
+    try {
+      const result = (await bridge.callTool('create_reservation', {
+        resourceId: EXAMPLE_AVAILABILITY.resourceId,
+        slotId: slot.id,
+        customer: { name: 'Demo User' }
+      })) as { reservation: Reservation };
+      setReservation(result.reservation);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Reservation failed');
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!reservation) return;
+    try {
+      const result = (await bridge.callTool('cancel_reservation', {
+        reservationId: reservation.id
+      })) as { reservation: Reservation };
+      setReservation(result.reservation);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Cancellation failed');
+    }
+  };
 
   if (reservation) {
     return (
       <div style={sectionStyle}>
-        <BookingCard
-          reservation={reservation}
-          onCancel={() =>
-            setReservation({ ...reservation, status: 'cancelled' })
-          }
-        />
+        <BookingCard reservation={reservation} onCancel={handleCancel} />
+        {error && <CTABanner title="Error" description={error} variant="danger" />}
         <CTABanner
           title="Need another time?"
           primaryLabel="Start over"
@@ -152,6 +179,7 @@ const BookingTab: React.FC = () => {
             setReservation(null);
             setSlot(undefined);
             setDate(undefined);
+            setError(null);
           }}
         />
       </div>
@@ -160,8 +188,9 @@ const BookingTab: React.FC = () => {
 
   return (
     <div style={sectionStyle}>
+      {error && <CTABanner title="Error" description={error} variant="danger" />}
       <AvailabilityCalendar
-        availableDates={[EXAMPLE_AVAILABILITY.date]}
+        availableDates={availableDates}
         selectedDate={date}
         onSelect={setDate}
       />
@@ -177,17 +206,7 @@ const BookingTab: React.FC = () => {
           title="Confirm reservation"
           description={`${EXAMPLE_AVAILABILITY.resourceName} on ${date}`}
           primaryLabel="Confirm"
-          onPrimary={() =>
-            setReservation({
-              id: `res-${Date.now()}`,
-              resourceId: EXAMPLE_AVAILABILITY.resourceId,
-              resourceName: EXAMPLE_AVAILABILITY.resourceName,
-              slotId: slot.id,
-              startsAt: slot.startsAt,
-              endsAt: slot.endsAt,
-              status: 'confirmed'
-            })
-          }
+          onPrimary={handleConfirm}
         />
       )}
     </div>
@@ -195,14 +214,19 @@ const BookingTab: React.FC = () => {
 };
 
 const LeadGenTab: React.FC = () => {
-  const [submitted, setSubmitted] = useState<LeadFormValues | null>(null);
+  const bridge = useBridge();
+  const [submitted, setSubmitted] = useState<{
+    leadId: string;
+    provider: string;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (submitted) {
     return (
       <div style={sectionStyle}>
         <CTABanner
           title="Thanks — we'll be in touch."
-          description={JSON.stringify(submitted)}
+          description={`Lead ${submitted.leadId} synced via ${submitted.provider}.`}
           variant="success"
           primaryLabel="Submit another"
           onPrimary={() => setSubmitted(null)}
@@ -211,10 +235,25 @@ const LeadGenTab: React.FC = () => {
     );
   }
   return (
-    <MultiStepForm
-      form={EXAMPLE_LEAD_FORM}
-      onComplete={(values) => setSubmitted(values)}
-    />
+    <div style={sectionStyle}>
+      {error && <CTABanner title="Error" description={error} variant="danger" />}
+      <MultiStepForm
+        form={EXAMPLE_LEAD_FORM}
+        onComplete={async (values) => {
+          setError(null);
+          try {
+            const result = (await bridge.callTool('submit_lead', {
+              formId: EXAMPLE_LEAD_FORM.id,
+              values,
+              submittedAt: new Date().toISOString()
+            })) as { leadId: string; provider: string };
+            setSubmitted(result);
+          } catch (err) {
+            setError(err instanceof Error ? err.message : 'Submission failed');
+          }
+        }}
+      />
+    </div>
   );
 };
 

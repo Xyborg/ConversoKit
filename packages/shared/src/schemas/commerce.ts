@@ -11,3 +11,27 @@ export const productSchema = z.object({
 });
 
 export type Product = z.infer<typeof productSchema>;
+
+export const cartItemSchema = productSchema.extend({
+  quantity: z.number().int().min(1)
+});
+
+export type CartItem = z.infer<typeof cartItemSchema>;
+
+export const cartSchema = z.object({
+  items: z.array(cartItemSchema),
+  currency: z.string().default('USD')
+});
+
+export type Cart = z.infer<typeof cartSchema>;
+
+export const checkoutSummarySchema = z.object({
+  items: z.array(cartItemSchema),
+  subtotal: z.string(),
+  taxes: z.string().optional(),
+  shipping: z.string().optional(),
+  total: z.string(),
+  currency: z.string().default('USD')
+});
+
+export type CheckoutSummary = z.infer<typeof checkoutSummarySchema>;

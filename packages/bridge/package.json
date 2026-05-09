@@ -1,8 +1,19 @@
 {
   "name": "@conversokit/bridge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Widget Bridge for ConversoKit — `<BridgeProvider>` + `useBridge()` that prefers `window.openai.callTool` and falls back to `fetch` for local dev.",
   "license": "Apache-2.0",
+  "keywords": [
+    "react",
+    "mcp",
+    "openai",
+    "chatgpt-apps",
+    "tool-calling",
+    "conversokit"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xyborg/ConversoKit.git",

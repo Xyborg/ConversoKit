@@ -1,8 +1,19 @@
 {
   "name": "@conversokit/themes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Themes for ConversoKit (light, dark, minimal, modern-saas, enterprise, commerce, travel) — `<ThemeProvider>` injecting `--ck-*` CSS variables.",
   "license": "Apache-2.0",
+  "keywords": [
+    "react",
+    "theming",
+    "css-variables",
+    "design-tokens",
+    "conversokit",
+    "chatgpt-apps"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xyborg/ConversoKit.git",

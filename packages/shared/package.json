@@ -1,8 +1,20 @@
 {
   "name": "@conversokit/shared",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared Zod schemas, TypeScript types, and example fixtures consumed by every other ConversoKit package.",
   "license": "Apache-2.0",
+  "keywords": [
+    "zod",
+    "schemas",
+    "types",
+    "contracts",
+    "conversokit",
+    "chatgpt-apps",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xyborg/ConversoKit.git",

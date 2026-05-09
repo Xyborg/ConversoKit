@@ -2,6 +2,16 @@
 
 All notable changes to ConversoKit will be documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] — 2026-05-10
+
+### Added
+- Per-package READMEs for the 8 publishable packages (shared, themes, bridge, auth, widgets, integrations, templates, conversokit CLI).
+- `keywords` field on every package for npm discoverability.
+- `engines.node: ">=18.0.0"` on every package.
+
+### Changed
+- CI release workflow: tolerate partial publish failures (`continue-on-error` on the publish step) and add a verification step that confirms each package's published version matches the workspace version.
+
 ## [0.1.0] — Unreleased
 
 The first publishable release. Everything below ships across the eight publishable packages: `@conversokit/{shared,themes,widgets,bridge,auth,integrations,templates}` and the `conversokit` CLI.

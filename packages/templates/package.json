@@ -1,8 +1,18 @@
 {
   "name": "@conversokit/templates",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "App templates (commerce, booking, saas-onboarding, travel, dashboard) declaring tools, widgets, integrations, auth, and consent for ConversoKit.",
   "license": "Apache-2.0",
+  "keywords": [
+    "scaffolding",
+    "templates",
+    "chatgpt-apps",
+    "mcp",
+    "conversokit"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xyborg/ConversoKit.git",

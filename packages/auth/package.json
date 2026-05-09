@@ -1,8 +1,20 @@
 {
   "name": "@conversokit/auth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Auth providers (API key, JWT/JWKS, Google/GitHub/Microsoft/Auth0 OAuth, Clerk, Supabase) and Express middleware for ConversoKit ChatGPT Apps.",
   "license": "Apache-2.0",
+  "keywords": [
+    "oauth",
+    "jwt",
+    "jwks",
+    "express",
+    "middleware",
+    "conversokit",
+    "chatgpt-apps"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xyborg/ConversoKit.git",

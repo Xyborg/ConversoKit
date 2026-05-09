@@ -1,8 +1,10 @@
 {
   "name": "conversokit",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "CLI for ConversoKit — scaffold ChatGPT Apps in <30 minutes.",
   "main": "dist/cli.js",
   "bin": {

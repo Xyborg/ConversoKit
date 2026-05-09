@@ -64,6 +64,24 @@ jobs:
         run: pnpm build
 
       - name: Publish to npm
+        continue-on-error: true
         run: pnpm publish -r --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify published versions
+        run: |
+          set -e
+          fail=0
+          for d in packages/*/; do
+            name=$(node -p "require('./$d/package.json').name")
+            want=$(node -p "require('./$d/package.json').version")
+            got=$(npm view "$name" version 2>/dev/null || echo "MISSING")
+            if [ "$want" = "$got" ]; then
+              echo "✓ $name@$want"
+            else
+              echo "✗ $name: want $want, registry has $got"
+              fail=1
+            fi
+          done
+          exit $fail

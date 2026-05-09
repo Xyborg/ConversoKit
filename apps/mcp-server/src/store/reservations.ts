@@ -1,11 +1,10 @@
 import type { Reservation } from '@conversokit/shared';
+import {
+  createSupabaseStores,
+  type ReservationStore
+} from '@conversokit/integrations';
 
-export interface ReservationStore {
-  put(reservation: Reservation): Promise<void>;
-  get(id: string): Promise<Reservation | undefined>;
-  cancel(id: string): Promise<Reservation | undefined>;
-  list(): Promise<Reservation[]>;
-}
+export type { ReservationStore };
 
 export class InMemoryReservationStore implements ReservationStore {
   private records = new Map<string, Reservation>();
@@ -28,4 +27,6 @@ export class InMemoryReservationStore implements ReservationStore {
   }
 }
 
-export const defaultReservationStore = new InMemoryReservationStore();
+const supa = createSupabaseStores(process.env);
+export const defaultReservationStore: ReservationStore =
+  supa?.reservations ?? new InMemoryReservationStore();

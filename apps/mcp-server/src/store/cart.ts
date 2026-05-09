@@ -1,10 +1,10 @@
 import type { Cart, CartItem } from '@conversokit/shared';
+import {
+  createSupabaseStores,
+  type CartStore
+} from '@conversokit/integrations';
 
-export interface CartStore {
-  get(sessionId: string): Promise<Cart>;
-  set(sessionId: string, cart: Cart): Promise<void>;
-  clear(sessionId: string): Promise<void>;
-}
+export type { CartStore };
 
 export class InMemoryCartStore implements CartStore {
   private store = new Map<string, Cart>();
@@ -32,4 +32,5 @@ export function cartHash(items: CartItem[]): string {
   return Math.abs(h).toString(36);
 }
 
-export const defaultCartStore = new InMemoryCartStore();
+const supa = createSupabaseStores(process.env);
+export const defaultCartStore: CartStore = supa?.cart ?? new InMemoryCartStore();

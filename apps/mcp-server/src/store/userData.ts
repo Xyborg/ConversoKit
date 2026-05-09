@@ -1,14 +1,10 @@
-export interface UserDataExport {
-  userId: string;
-  records: Record<string, unknown>;
-  exportedAt: string;
-}
+import {
+  createSupabaseStores,
+  type UserDataExport,
+  type UserDataStore
+} from '@conversokit/integrations';
 
-export interface UserDataStore {
-  put(userId: string, key: string, value: unknown): Promise<void>;
-  export(userId: string): Promise<UserDataExport>;
-  remove(userId: string): Promise<void>;
-}
+export type { UserDataExport, UserDataStore };
 
 export class InMemoryUserDataStore implements UserDataStore {
   private data = new Map<string, Map<string, unknown>>();
@@ -32,4 +28,6 @@ export class InMemoryUserDataStore implements UserDataStore {
   }
 }
 
-export const defaultUserDataStore = new InMemoryUserDataStore();
+const supa = createSupabaseStores(process.env);
+export const defaultUserDataStore: UserDataStore =
+  supa?.userData ?? new InMemoryUserDataStore();

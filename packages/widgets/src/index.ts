@@ -32,6 +32,26 @@ export { MultiStepForm, MultiStepFormMeta } from './MultiStepForm.js';
 export type { MultiStepFormProps } from './MultiStepForm.js';
 export { CTABanner, CTABannerMeta, ctaBannerSchema } from './CTABanner.js';
 export type { CTABannerProps, CTABannerVariant } from './CTABanner.js';
+export { HotelCard, HotelCardMeta } from './HotelCard.js';
+export type { HotelCardProps } from './HotelCard.js';
+export { FlightSummary, FlightSummaryMeta } from './FlightSummary.js';
+export type { FlightSummaryProps } from './FlightSummary.js';
+export { ItineraryTimeline, ItineraryTimelineMeta } from './ItineraryTimeline.js';
+export type { ItineraryTimelineProps } from './ItineraryTimeline.js';
+export {
+  DestinationRecommendations,
+  DestinationRecommendationsMeta,
+  destinationRecommendationsSchema
+} from './DestinationRecommendations.js';
+export type { DestinationRecommendationsProps } from './DestinationRecommendations.js';
+export { KPIGrid, KPIGridMeta, kpiGridSchema } from './KPIGrid.js';
+export type { KPIGridProps } from './KPIGrid.js';
+export { TrendChart, TrendChartMeta } from './TrendChart.js';
+export type { TrendChartProps } from './TrendChart.js';
+export { AnalyticsPanel, AnalyticsPanelMeta } from './AnalyticsPanel.js';
+export type { AnalyticsPanelProps } from './AnalyticsPanel.js';
+export { AlertFeed, AlertFeedMeta } from './AlertFeed.js';
+export type { AlertFeedProps } from './AlertFeed.js';
 export {
   widgetRegistry,
   registerWidget,

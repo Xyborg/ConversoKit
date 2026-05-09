@@ -1,4 +1,5 @@
 export * from './types.js';
+export * from './stores.js';
 export { MockPaymentProvider } from './mock.js';
 export {
   StripeProvider,
@@ -17,3 +18,13 @@ export {
   createHubspotProvider,
   type HubspotProviderOptions
 } from './hubspot.js';
+export {
+  SupabaseCartStore,
+  SupabaseOrderStore,
+  SupabaseReservationStore,
+  SupabaseLeadStore,
+  SupabaseUserDataStore,
+  createSupabaseStores,
+  SUPABASE_SCHEMA_SQL,
+  type SupabaseStoresOptions
+} from './supabase.js';

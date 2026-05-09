@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { randomUUID, createHmac } from 'node:crypto';
-import { googleProvider } from '@conversokit/auth';
+import { googleProvider, githubProvider } from '@conversokit/auth';
 import type { OAuthFlowProvider } from '@conversokit/auth';
 
 const COOKIE_NAME = 'conversokit_session';
@@ -40,9 +40,11 @@ export function readSessionCookie(
 export function authRouter(): Router {
   const router = Router();
   const google = googleProvider(process.env);
+  const github = githubProvider(process.env);
 
   const providers: Record<string, OAuthFlowProvider | null> = {
-    google: google
+    google,
+    github
   };
 
   router.get('/auth/:provider/login', (req, res) => {

@@ -1,17 +1,10 @@
-export interface OrderRecord {
-  id: string;
-  sessionId: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'paid' | 'failed';
-  rawEventType: string;
-  createdAt: string;
-}
+import {
+  createSupabaseStores,
+  type OrderRecord,
+  type OrderStore
+} from '@conversokit/integrations';
 
-export interface OrderStore {
-  put(order: OrderRecord): Promise<void>;
-  list(): Promise<OrderRecord[]>;
-}
+export type { OrderRecord, OrderStore };
 
 export class InMemoryOrderStore implements OrderStore {
   private orders: OrderRecord[] = [];
@@ -23,4 +16,6 @@ export class InMemoryOrderStore implements OrderStore {
   }
 }
 
-export const defaultOrderStore = new InMemoryOrderStore();
+const supa = createSupabaseStores(process.env);
+export const defaultOrderStore: OrderStore =
+  supa?.orders ?? new InMemoryOrderStore();

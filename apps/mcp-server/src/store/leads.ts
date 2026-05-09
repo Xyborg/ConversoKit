@@ -1,9 +1,10 @@
 import type { LeadSubmission } from '@conversokit/shared';
+import {
+  createSupabaseStores,
+  type LeadStore
+} from '@conversokit/integrations';
 
-export interface LeadStore {
-  put(lead: LeadSubmission & { id: string }): Promise<void>;
-  list(): Promise<Array<LeadSubmission & { id: string }>>;
-}
+export type { LeadStore };
 
 export class InMemoryLeadStore implements LeadStore {
   private leads: Array<LeadSubmission & { id: string }> = [];
@@ -15,4 +16,6 @@ export class InMemoryLeadStore implements LeadStore {
   }
 }
 
-export const defaultLeadStore = new InMemoryLeadStore();
+const supa = createSupabaseStores(process.env);
+export const defaultLeadStore: LeadStore =
+  supa?.leads ?? new InMemoryLeadStore();

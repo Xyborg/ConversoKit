@@ -10,6 +10,14 @@ import { BookingCardMeta } from './BookingCard.js';
 import { LeadCaptureFormMeta } from './LeadCaptureForm.js';
 import { MultiStepFormMeta } from './MultiStepForm.js';
 import { CTABannerMeta } from './CTABanner.js';
+import { HotelCardMeta } from './HotelCard.js';
+import { FlightSummaryMeta } from './FlightSummary.js';
+import { ItineraryTimelineMeta } from './ItineraryTimeline.js';
+import { DestinationRecommendationsMeta } from './DestinationRecommendations.js';
+import { KPIGridMeta } from './KPIGrid.js';
+import { TrendChartMeta } from './TrendChart.js';
+import { AnalyticsPanelMeta } from './AnalyticsPanel.js';
+import { AlertFeedMeta } from './AlertFeed.js';
 
 const allMeta = [
   ProductCardMeta,
@@ -22,7 +30,15 @@ const allMeta = [
   LeadCaptureFormMeta,
   MultiStepFormMeta,
   CTABannerMeta,
-  ConsentBannerMeta
+  ConsentBannerMeta,
+  HotelCardMeta,
+  FlightSummaryMeta,
+  ItineraryTimelineMeta,
+  DestinationRecommendationsMeta,
+  KPIGridMeta,
+  TrendChartMeta,
+  AnalyticsPanelMeta,
+  AlertFeedMeta
 ];
 
 export const widgetRegistry: Record<string, WidgetMeta> = Object.fromEntries(

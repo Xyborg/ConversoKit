@@ -16,6 +16,8 @@
     "test": "echo \"no tests yet\""
   },
   "dependencies": {
+    "@conversokit/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.43.0",
     "stripe": "^14.0.0"
   },
   "devDependencies": {

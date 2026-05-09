@@ -7,6 +7,14 @@ import { getAvailabilityTool } from './getAvailability.js';
 import { createReservationTool } from './createReservation.js';
 import { cancelReservationTool } from './cancelReservation.js';
 import { submitLeadTool } from './submitLead.js';
+import { searchHotelsTool } from './searchHotels.js';
+import { searchFlightsTool } from './searchFlights.js';
+import { getItineraryTool } from './getItinerary.js';
+import { listDestinationsTool } from './listDestinations.js';
+import { getKpisTool } from './getKpis.js';
+import { getTrendSeriesTool } from './getTrendSeries.js';
+import { getAnalyticsPanelTool } from './getAnalyticsPanel.js';
+import { getAlertsTool } from './getAlerts.js';
 
 export const tools: Tool[] = [
   searchProductsTool,
@@ -16,5 +24,13 @@ export const tools: Tool[] = [
   getAvailabilityTool,
   createReservationTool,
   cancelReservationTool,
-  submitLeadTool
+  submitLeadTool,
+  searchHotelsTool,
+  searchFlightsTool,
+  getItineraryTool,
+  listDestinationsTool,
+  getKpisTool,
+  getTrendSeriesTool,
+  getAnalyticsPanelTool,
+  getAlertsTool
 ];

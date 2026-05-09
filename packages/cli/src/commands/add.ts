@@ -9,7 +9,13 @@ import { copyDir } from '../utils/copy.js';
 const KINDS = ['widget', 'integration', 'template'] as const;
 type Kind = (typeof KINDS)[number];
 
-const TEMPLATES = ['commerce', 'booking', 'saas-onboarding'] as const;
+const TEMPLATES = [
+  'commerce',
+  'booking',
+  'saas-onboarding',
+  'travel',
+  'dashboard'
+] as const;
 
 const KNOWN_INTEGRATIONS: Record<
   string,

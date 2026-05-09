@@ -6,7 +6,13 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { copyDir } from '../utils/copy.js';
 
-const TEMPLATES = ['commerce', 'booking', 'saas-onboarding'] as const;
+const TEMPLATES = [
+  'commerce',
+  'booking',
+  'saas-onboarding',
+  'travel',
+  'dashboard'
+] as const;
 type TemplateName = (typeof TEMPLATES)[number];
 
 function templatesRoot(): string {

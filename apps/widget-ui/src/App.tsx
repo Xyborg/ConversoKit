@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
   AddToCartPanel,
+  AlertFeed,
+  AnalyticsPanel,
   AvailabilityCalendar,
   BookingCard,
   CTABanner,
   CheckoutSummary,
   ConsentBanner,
+  DestinationRecommendations,
+  FlightSummary,
+  HotelCard,
+  ItineraryTimeline,
   MultiStepForm,
   ProductCarousel,
   TimeSlotSelector,
@@ -15,7 +21,13 @@ import {
   EXAMPLE_AVAILABILITY,
   EXAMPLE_CHECKOUT_SUMMARY,
   EXAMPLE_LEAD_FORM,
+  type Alert,
+  type AnalyticsPanel as AnalyticsPanelData,
   type CartItem,
+  type Destination,
+  type FlightSummary as FlightSummaryData,
+  type Hotel,
+  type Itinerary,
   type Reservation,
   type TimeSlot
 } from '@conversokit/shared';
@@ -26,7 +38,7 @@ import {
 } from '@conversokit/themes';
 import { BridgeProvider, useBridge } from '@conversokit/bridge';
 
-type TabKey = 'commerce' | 'booking' | 'leadgen';
+type TabKey = 'commerce' | 'booking' | 'leadgen' | 'travel' | 'dashboard';
 
 const themeNames = Object.keys(themes);
 
@@ -257,6 +269,150 @@ const LeadGenTab: React.FC = () => {
   );
 };
 
+const TravelTab: React.FC = () => {
+  const bridge = useBridge();
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [flight, setFlight] = useState<FlightSummaryData | null>(null);
+  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+  const [picked, setPicked] = useState<Destination | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = (await bridge.callTool('list_destinations', {})) as {
+          items: Destination[];
+        };
+        if (!cancelled) setDestinations(r.items);
+      } catch (err) {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'Failed to load destinations');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bridge]);
+
+  const handlePick = async (dest: Destination) => {
+    setPicked(dest);
+    setError(null);
+    try {
+      const [hotelRes, flightRes] = await Promise.all([
+        bridge.callTool('search_hotels', { query: dest.name }) as Promise<{
+          items: Hotel[];
+        }>,
+        bridge.callTool('search_flights', {
+          origin: 'BER',
+          destination: dest.name.slice(0, 3).toUpperCase()
+        }) as Promise<{ items: FlightSummaryData[] }>
+      ]);
+      setHotels(hotelRes.items);
+      setFlight(flightRes.items[0] ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Travel lookup failed');
+    }
+  };
+
+  const handleBuildItinerary = async () => {
+    setError(null);
+    try {
+      const r = (await bridge.callTool('get_itinerary', {
+        itineraryId: 'demo'
+      })) as { itinerary: Itinerary };
+      setItinerary(r.itinerary);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Itinerary failed');
+    }
+  };
+
+  return (
+    <div style={sectionStyle}>
+      {error && <CTABanner title="Error" description={error} variant="danger" />}
+      <DestinationRecommendations
+        destinations={destinations}
+        onSelect={handlePick}
+      />
+      {picked && (
+        <CTABanner
+          title={`Plan a trip to ${picked.name}`}
+          description="Hotels and flights below — click 'Build itinerary' to assemble a sample plan."
+          primaryLabel="Build itinerary"
+          onPrimary={handleBuildItinerary}
+        />
+      )}
+      {hotels.length > 0 && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 'var(--ck-spacing-2)'
+          }}
+        >
+          {hotels.map((h) => (
+            <HotelCard key={h.id} hotel={h} />
+          ))}
+        </div>
+      )}
+      {flight && <FlightSummary flight={flight} />}
+      {itinerary && <ItineraryTimeline itinerary={itinerary} />}
+    </div>
+  );
+};
+
+const DashboardTab: React.FC = () => {
+  const bridge = useBridge();
+  const [panel, setPanel] = useState<AnalyticsPanelData | null>(null);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [panelRes, alertsRes] = await Promise.all([
+          bridge.callTool('get_analytics_panel', {}) as Promise<{
+            panel: AnalyticsPanelData;
+          }>,
+          bridge.callTool('get_alerts', {}) as Promise<{ items: Alert[] }>
+        ]);
+        if (!cancelled) {
+          setPanel(panelRes.panel);
+          setAlerts(alertsRes.items);
+        }
+      } catch (err) {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'Dashboard load failed');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bridge]);
+
+  return (
+    <div style={sectionStyle}>
+      {error && (
+        <CTABanner
+          title="Dashboard tools require auth"
+          description={`${error} — set CONVERSOKIT_API_KEYS in apps/mcp-server/.env and pass it via VITE_CONVERSOKIT_API_KEY.`}
+          variant="danger"
+        />
+      )}
+      {panel && <AnalyticsPanel panel={panel} />}
+      <h3 style={{ margin: 0 }}>Alerts</h3>
+      <AlertFeed
+        alerts={alerts}
+        onAcknowledge={(a) =>
+          setAlerts((current) => current.filter((x) => x.id !== a.id))
+        }
+      />
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [themeName, setThemeName] = useState<string>('light');
   const [tab, setTab] = useState<TabKey>('commerce');
@@ -315,7 +471,9 @@ const App: React.FC = () => {
             [
               ['commerce', 'Commerce'],
               ['booking', 'Booking'],
-              ['leadgen', 'Lead Gen']
+              ['leadgen', 'Lead Gen'],
+              ['travel', 'Travel'],
+              ['dashboard', 'Dashboard']
             ] as const
           ).map(([key, label]) => (
             <button
@@ -336,6 +494,8 @@ const App: React.FC = () => {
           {tab === 'commerce' && <CommerceTab />}
           {tab === 'booking' && <BookingTab />}
           {tab === 'leadgen' && <LeadGenTab />}
+          {tab === 'travel' && <TravelTab />}
+          {tab === 'dashboard' && <DashboardTab />}
         </ConsentBanner>
       </ThemeProvider>
     </BridgeProvider>

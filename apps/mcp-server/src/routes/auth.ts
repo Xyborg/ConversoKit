@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { randomUUID, createHmac } from 'node:crypto';
-import { googleProvider, githubProvider } from '@conversokit/auth';
+import {
+  googleProvider,
+  githubProvider,
+  microsoftProvider,
+  auth0Provider
+} from '@conversokit/auth';
 import type { OAuthFlowProvider } from '@conversokit/auth';
 
 const COOKIE_NAME = 'conversokit_session';
@@ -41,10 +46,14 @@ export function authRouter(): Router {
   const router = Router();
   const google = googleProvider(process.env);
   const github = githubProvider(process.env);
+  const microsoft = microsoftProvider(process.env);
+  const auth0 = auth0Provider(process.env);
 
   const providers: Record<string, OAuthFlowProvider | null> = {
     google,
-    github
+    github,
+    microsoft,
+    auth0
   };
 
   router.get('/auth/:provider/login', (req, res) => {

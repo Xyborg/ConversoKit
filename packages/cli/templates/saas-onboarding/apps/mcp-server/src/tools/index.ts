@@ -1,5 +1,4 @@
 import type { Tool } from '@conversokit/shared';
+import { submitLeadTool } from './submitLead.js';
 
-// Generated saas-onboarding template. Implement submit_lead in
-// apps/mcp-server/src/tools/submitLead.ts (see ConversoKit docs).
-export const tools: Tool[] = [];
+export const tools: Tool[] = [submitLeadTool];

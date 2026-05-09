@@ -21,21 +21,6 @@ export interface OAuthFlowProvider extends AuthProvider {
   exchangeCode(code: string): Promise<{ user: { id: string; email?: string; name?: string }; tokens: { accessToken: string; refreshToken?: string; expiresIn?: number } }>;
 }
 
-class StubOAuthProvider implements AuthProvider {
-  id: string;
-  type: AuthType = 'oauth';
-  constructor(id: string) {
-    this.id = id;
-  }
-  async verify(_req: Request): Promise<AuthResult> {
-    return {
-      ok: false,
-      type: this.type,
-      reason: `OAuth provider '${this.id}' is not implemented yet (post-MVP).`
-    };
-  }
-}
-
 export class GoogleOAuthProvider implements OAuthFlowProvider {
   id = 'google';
   type: AuthType = 'oauth';
@@ -240,15 +225,193 @@ export function githubProvider(env: NodeJS.ProcessEnv = process.env) {
       env.GITHUB_REDIRECT_URI ?? 'http://localhost:3000/auth/github/callback'
   });
 }
-export function microsoftProvider(): AuthProvider {
-  return new StubOAuthProvider('microsoft');
+export class MicrosoftOAuthProvider implements OAuthFlowProvider {
+  id = 'microsoft';
+  type: AuthType = 'oauth';
+  private endpoints: OAuthEndpoints;
+  constructor(
+    private config: OAuthFlowConfig & { tenant?: string }
+  ) {
+    const tenant = config.tenant ?? 'common';
+    this.endpoints = {
+      authorizationUrl: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize`,
+      tokenUrl: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
+      userInfoUrl: 'https://graph.microsoft.com/oidc/userinfo'
+    };
+  }
+
+  getAuthorizationUrl(state: string): string {
+    const params = new URLSearchParams({
+      client_id: this.config.clientId,
+      redirect_uri: this.config.redirectUri,
+      response_type: 'code',
+      response_mode: 'query',
+      scope: (this.config.scopes ?? ['openid', 'email', 'profile', 'User.Read']).join(' '),
+      state
+    });
+    return `${this.endpoints.authorizationUrl}?${params.toString()}`;
+  }
+
+  async exchangeCode(code: string) {
+    const tokenRes = await fetch(this.endpoints.tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+        redirect_uri: this.config.redirectUri,
+        grant_type: 'authorization_code',
+        scope: (this.config.scopes ?? ['openid', 'email', 'profile', 'User.Read']).join(' ')
+      })
+    });
+    if (!tokenRes.ok) {
+      throw new Error(`Microsoft token exchange failed: ${tokenRes.status}`);
+    }
+    const tokenJson = (await tokenRes.json()) as {
+      access_token: string;
+      refresh_token?: string;
+      expires_in?: number;
+    };
+    const userRes = await fetch(this.endpoints.userInfoUrl, {
+      headers: { Authorization: `Bearer ${tokenJson.access_token}` }
+    });
+    if (!userRes.ok) {
+      throw new Error(`Microsoft userinfo failed: ${userRes.status}`);
+    }
+    const userJson = (await userRes.json()) as {
+      sub: string;
+      email?: string;
+      name?: string;
+      preferred_username?: string;
+    };
+    return {
+      user: {
+        id: userJson.sub,
+        email: userJson.email ?? userJson.preferred_username,
+        name: userJson.name
+      },
+      tokens: {
+        accessToken: tokenJson.access_token,
+        refreshToken: tokenJson.refresh_token,
+        expiresIn: tokenJson.expires_in
+      }
+    };
+  }
+
+  async verify(_req: Request): Promise<AuthResult> {
+    return {
+      ok: false,
+      type: this.type,
+      reason:
+        'OAuth providers authenticate via /auth/:provider/login, not the tool endpoints.'
+    };
+  }
 }
-export function auth0Provider(): AuthProvider {
-  return new StubOAuthProvider('auth0');
+
+export function microsoftProvider(env: NodeJS.ProcessEnv = process.env) {
+  if (!env.MS_CLIENT_ID || !env.MS_CLIENT_SECRET) return null;
+  return new MicrosoftOAuthProvider({
+    clientId: env.MS_CLIENT_ID,
+    clientSecret: env.MS_CLIENT_SECRET,
+    redirectUri:
+      env.MS_REDIRECT_URI ?? 'http://localhost:3000/auth/microsoft/callback',
+    tenant: env.MS_TENANT_ID
+  });
 }
-export function clerkProvider(): AuthProvider {
-  return new StubOAuthProvider('clerk');
+
+export class Auth0Provider implements OAuthFlowProvider {
+  id = 'auth0';
+  type: AuthType = 'oauth';
+  private endpoints: OAuthEndpoints;
+  constructor(private config: OAuthFlowConfig & { domain: string }) {
+    this.endpoints = {
+      authorizationUrl: `https://${config.domain}/authorize`,
+      tokenUrl: `https://${config.domain}/oauth/token`,
+      userInfoUrl: `https://${config.domain}/userinfo`
+    };
+  }
+
+  getAuthorizationUrl(state: string): string {
+    const params = new URLSearchParams({
+      client_id: this.config.clientId,
+      redirect_uri: this.config.redirectUri,
+      response_type: 'code',
+      scope: (this.config.scopes ?? ['openid', 'email', 'profile']).join(' '),
+      state
+    });
+    return `${this.endpoints.authorizationUrl}?${params.toString()}`;
+  }
+
+  async exchangeCode(code: string) {
+    const tokenRes = await fetch(this.endpoints.tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        grant_type: 'authorization_code',
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+        code,
+        redirect_uri: this.config.redirectUri
+      })
+    });
+    if (!tokenRes.ok) {
+      throw new Error(`Auth0 token exchange failed: ${tokenRes.status}`);
+    }
+    const tokenJson = (await tokenRes.json()) as {
+      access_token: string;
+      refresh_token?: string;
+      expires_in?: number;
+    };
+    const userRes = await fetch(this.endpoints.userInfoUrl, {
+      headers: { Authorization: `Bearer ${tokenJson.access_token}` }
+    });
+    if (!userRes.ok) {
+      throw new Error(`Auth0 userinfo failed: ${userRes.status}`);
+    }
+    const userJson = (await userRes.json()) as {
+      sub: string;
+      email?: string;
+      name?: string;
+      nickname?: string;
+    };
+    return {
+      user: {
+        id: userJson.sub,
+        email: userJson.email,
+        name: userJson.name ?? userJson.nickname
+      },
+      tokens: {
+        accessToken: tokenJson.access_token,
+        refreshToken: tokenJson.refresh_token,
+        expiresIn: tokenJson.expires_in
+      }
+    };
+  }
+
+  async verify(_req: Request): Promise<AuthResult> {
+    return {
+      ok: false,
+      type: this.type,
+      reason:
+        'OAuth providers authenticate via /auth/:provider/login, not the tool endpoints.'
+    };
+  }
 }
-export function supabaseProvider(): AuthProvider {
-  return new StubOAuthProvider('supabase');
+
+export function auth0Provider(env: NodeJS.ProcessEnv = process.env) {
+  if (
+    !env.AUTH0_DOMAIN ||
+    !env.AUTH0_CLIENT_ID ||
+    !env.AUTH0_CLIENT_SECRET
+  ) {
+    return null;
+  }
+  return new Auth0Provider({
+    domain: env.AUTH0_DOMAIN,
+    clientId: env.AUTH0_CLIENT_ID,
+    clientSecret: env.AUTH0_CLIENT_SECRET,
+    redirectUri:
+      env.AUTH0_REDIRECT_URI ?? 'http://localhost:3000/auth/auth0/callback'
+  });
 }

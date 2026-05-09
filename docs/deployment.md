@@ -7,6 +7,18 @@ ConversoKit is two deployable artifacts:
 
 The widget UI talks to the MCP server via HTTPS (or `window.openai` inside ChatGPT). Deploy them together or separately.
 
+## Quickstart: `conversokit deploy`
+
+The CLI writes deployment config straight into your project root:
+
+```bash
+npx conversokit deploy vercel    # writes vercel.json + api/mcp.ts
+npx conversokit deploy docker    # writes Dockerfile + docker-compose.yml + .dockerignore
+npx conversokit deploy railway   # writes railway.json + Procfile
+```
+
+Re-run with `--force` to overwrite. The MCP server already answers `GET /health` so the platform health checks work out of the box. Each command prints next-step CLI instructions for that target.
+
 ## Docker (works anywhere)
 
 Multistage Dockerfiles ship in each app:
@@ -67,4 +79,4 @@ railway up
 - **`COOKIE_SECRET`.** Set it. The dev fallback is intentionally weak.
 - **Stripe webhooks.** Configure the live webhook URL in your Stripe dashboard and store the corresponding `STRIPE_WEBHOOK_SECRET`.
 - **Rate limits.** Add `express-rate-limit` (or platform-level) on `/tools/:name` so a misbehaving caller can't burn through paid integrations.
-- **Health checks.** Add `GET /health` returning 200 if you hit the MCP server.
+- **Health checks.** `GET /health` returns `{ ok: true }` and bypasses auth — point platform probes at it.

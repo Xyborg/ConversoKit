@@ -1,6 +1,10 @@
 import type { Tool } from '@conversokit/shared';
+import { getAvailabilityTool } from './getAvailability.js';
+import { createReservationTool } from './createReservation.js';
+import { cancelReservationTool } from './cancelReservation.js';
 
-// Generated booking template. Implement get_availability,
-// create_reservation, and cancel_reservation against your storage.
-// See @conversokit/templates/src/booking.ts for the template manifest.
-export const tools: Tool[] = [];
+export const tools: Tool[] = [
+  getAvailabilityTool,
+  createReservationTool,
+  cancelReservationTool
+];

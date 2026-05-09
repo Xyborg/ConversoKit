@@ -1,6 +1,16 @@
 export * from './types.js';
 export * from './stores.js';
-export { MockPaymentProvider } from './mock.js';
+export type {
+  EmailProvider,
+  EmailSendOptions,
+  EmailSendResult
+} from './email.js';
+export { MockPaymentProvider, MockEmailProvider } from './mock.js';
+export {
+  ResendEmailProvider,
+  createResendProvider,
+  type ResendEmailProviderOptions
+} from './resend.js';
 export {
   StripeProvider,
   createStripeProvider,

@@ -4,7 +4,9 @@ import { randomUUID } from 'node:crypto';
 import {
   apiKeyProvider,
   bearerJwtProvider,
+  clerkAuthProvider,
   createAuthMiddleware,
+  supabaseAuthProvider,
   type AuthProvider
 } from '@conversokit/auth';
 import type { Tool, ToolContext } from '@conversokit/shared';
@@ -18,6 +20,12 @@ import { authRouter } from './routes/auth.js';
 
 const app = express();
 app.use(cors());
+
+// Health check — must answer before auth middleware so external probes
+// (Railway, Docker compose healthchecks, Vercel) don't 401.
+app.get('/health', (_req, res) => {
+  res.json({ ok: true });
+});
 
 // Webhook routes need raw body for signature verification, so mount them
 // BEFORE express.json() (which would consume the body).
@@ -38,6 +46,10 @@ if (process.env.JWT_SECRET) {
 if (process.env.JWKS_URI) {
   providers.push(bearerJwtProvider({ jwksUri: process.env.JWKS_URI }));
 }
+const clerk = clerkAuthProvider(process.env);
+if (clerk) providers.push(clerk);
+const supabaseAuth = supabaseAuthProvider(process.env);
+if (supabaseAuth) providers.push(supabaseAuth);
 
 const authOptional = providers.length === 0;
 app.use(
@@ -110,6 +122,14 @@ app.use(userDataRouter());
 app.use(adminRouter());
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`MCP server listening on port ${PORT}`);
-});
+
+// Skip listen() when running under Vercel — the platform handles request
+// dispatch via the exported `app`.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`MCP server listening on port ${PORT}`);
+  });
+}
+
+export default app;
+export { app };

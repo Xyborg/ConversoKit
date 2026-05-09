@@ -1,6 +1,12 @@
 import type { Tool } from '@conversokit/shared';
+import { listDestinationsTool } from './listDestinations.js';
+import { searchHotelsTool } from './searchHotels.js';
+import { searchFlightsTool } from './searchFlights.js';
+import { getItineraryTool } from './getItinerary.js';
 
-// Generated travel template. Implement list_destinations, search_hotels,
-// search_flights, and get_itinerary against your storage / partner APIs.
-// See @conversokit/templates/src/travel.ts for the template manifest.
-export const tools: Tool[] = [];
+export const tools: Tool[] = [
+  listDestinationsTool,
+  searchHotelsTool,
+  searchFlightsTool,
+  getItineraryTool
+];

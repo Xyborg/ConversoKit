@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { createCommand } from './commands/create.js';
 import { addCommand } from './commands/add.js';
+import { deployCommand } from './commands/deploy.js';
 
 const program = new Command();
 
@@ -15,6 +16,7 @@ program
 
 program.addCommand(createCommand);
 program.addCommand(addCommand);
+program.addCommand(deployCommand);
 
 program.on('command:*', (operands) => {
   console.error(chalk.red(`Unknown command: ${operands.join(' ')}`));

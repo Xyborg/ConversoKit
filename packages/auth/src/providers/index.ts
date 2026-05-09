@@ -6,12 +6,14 @@ export type { BearerJwtProviderOptions } from './bearerJwt.js';
 export {
   GoogleOAuthProvider,
   GitHubOAuthProvider,
+  MicrosoftOAuthProvider,
+  Auth0Provider,
   googleProvider,
   githubProvider,
   microsoftProvider,
   auth0Provider,
-  clerkProvider,
-  supabaseProvider,
   type OAuthFlowConfig,
   type OAuthFlowProvider
 } from './oauth.js';
+export { clerkAuthProvider } from './clerk.js';
+export { supabaseAuthProvider } from './supabaseAuth.js';

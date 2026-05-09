@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm -w build",
+  "installCommand": "pnpm -w install --frozen-lockfile",
+  "outputDirectory": "apps/widget-ui/dist",
+  "rewrites": [
+    { "source": "/tools/:path*", "destination": "/api/mcp" },
+    { "source": "/auth/:path*", "destination": "/api/mcp" },
+    { "source": "/userdata/:path*", "destination": "/api/mcp" },
+    { "source": "/webhooks/:path*", "destination": "/api/mcp" },
+    { "source": "/admin/:path*", "destination": "/api/mcp" },
+    { "source": "/health", "destination": "/api/mcp" }
+  ],
+  "functions": {
+    "api/mcp.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}

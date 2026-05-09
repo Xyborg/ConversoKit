@@ -14,6 +14,7 @@ import { consentMiddleware, requireConsent } from './middleware/consent.js';
 import { userDataRouter } from './routes/userdata.js';
 import { webhookRouter } from './routes/webhooks.js';
 import { adminRouter } from './routes/admin.js';
+import { authRouter } from './routes/auth.js';
 
 const app = express();
 app.use(cors());
@@ -104,6 +105,7 @@ app.post('/tools/:name', async (req, res) => {
   }
 });
 
+app.use(authRouter());
 app.use(userDataRouter());
 app.use(adminRouter());
 

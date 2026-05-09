@@ -1,0 +1,19 @@
+{
+  "name": "<% projectName %>",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ChatGPT App scaffolded with ConversoKit (template: <% template %>)",
+  "scripts": {
+    "dev": "concurrently -k -n mcp,ui -c blue,magenta \"pnpm dev:mcp\" \"pnpm dev:ui\"",
+    "dev:mcp": "cd apps/mcp-server && pnpm dev",
+    "dev:ui": "cd apps/widget-ui && pnpm dev",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

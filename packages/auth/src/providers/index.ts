@@ -4,10 +4,13 @@ export { anonymousSessionProvider } from './anonymous.js';
 export { bearerJwtProvider } from './bearerJwt.js';
 export type { BearerJwtProviderOptions } from './bearerJwt.js';
 export {
+  GoogleOAuthProvider,
   googleProvider,
   githubProvider,
   microsoftProvider,
   auth0Provider,
   clerkProvider,
-  supabaseProvider
+  supabaseProvider,
+  type OAuthFlowConfig,
+  type OAuthFlowProvider
 } from './oauth.js';

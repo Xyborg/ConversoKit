@@ -1,11 +1,30 @@
 {
   "name": "conversokit",
   "version": "0.1.0",
+  "description": "CLI for ConversoKit — scaffold ChatGPT Apps in <30 minutes. Includes `create`, `add`, and `deploy` commands.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xyborg/ConversoKit.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/Xyborg/ConversoKit#readme",
+  "bugs": "https://github.com/Xyborg/ConversoKit/issues",
+  "keywords": [
+    "chatgpt",
+    "openai",
+    "apps-sdk",
+    "mcp",
+    "boilerplate",
+    "react",
+    "scaffold",
+    "cli",
+    "conversokit"
+  ],
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
-  "description": "CLI for ConversoKit — scaffold ChatGPT Apps in <30 minutes.",
   "main": "dist/cli.js",
   "bin": {
     "conversokit": "./dist/cli.js"

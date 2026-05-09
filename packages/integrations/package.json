@@ -1,6 +1,15 @@
 {
   "name": "@conversokit/integrations",
   "version": "0.1.0",
+  "description": "Real and mock integrations for ConversoKit: Stripe, HubSpot, Resend, Cloudflare Email, and Supabase persistent stores.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xyborg/ConversoKit.git",
+    "directory": "packages/integrations"
+  },
+  "homepage": "https://github.com/Xyborg/ConversoKit#readme",
+  "bugs": "https://github.com/Xyborg/ConversoKit/issues",
   "type": "module",
   "publishConfig": {
     "access": "public"

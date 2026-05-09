@@ -1,6 +1,15 @@
 {
   "name": "@conversokit/bridge",
   "version": "0.1.0",
+  "description": "Widget Bridge for ConversoKit — `<BridgeProvider>` + `useBridge()` that prefers `window.openai.callTool` and falls back to `fetch` for local dev.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xyborg/ConversoKit.git",
+    "directory": "packages/bridge"
+  },
+  "homepage": "https://github.com/Xyborg/ConversoKit#readme",
+  "bugs": "https://github.com/Xyborg/ConversoKit/issues",
   "type": "module",
   "publishConfig": {
     "access": "public"

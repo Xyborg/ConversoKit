@@ -1,6 +1,15 @@
 {
   "name": "@conversokit/widgets",
   "version": "0.1.0",
+  "description": "19 themed React widgets for ConversoKit (commerce, booking, lead-gen, travel, dashboard, consent) — every widget styled via `--ck-*` CSS variables.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xyborg/ConversoKit.git",
+    "directory": "packages/widgets"
+  },
+  "homepage": "https://github.com/Xyborg/ConversoKit#readme",
+  "bugs": "https://github.com/Xyborg/ConversoKit/issues",
   "type": "module",
   "publishConfig": {
     "access": "public"

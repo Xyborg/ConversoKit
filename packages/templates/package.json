@@ -1,6 +1,15 @@
 {
   "name": "@conversokit/templates",
   "version": "0.1.0",
+  "description": "App templates (commerce, booking, saas-onboarding, travel, dashboard) declaring tools, widgets, integrations, auth, and consent for ConversoKit.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xyborg/ConversoKit.git",
+    "directory": "packages/templates"
+  },
+  "homepage": "https://github.com/Xyborg/ConversoKit#readme",
+  "bugs": "https://github.com/Xyborg/ConversoKit/issues",
   "type": "module",
   "publishConfig": {
     "access": "public"

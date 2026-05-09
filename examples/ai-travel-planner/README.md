@@ -1,15 +1,23 @@
-# AI travel planner (post-MVP stub)
+# AI travel planner — ConversoKit example
 
-Not implemented in 0.1.x. The Travel widget category (HotelCard, FlightSummary, ItineraryTimeline, DestinationRecommendations) is post-MVP per PRD §22 Phase 2.
+A runnable, four-tab travel planner built on top of `@conversokit/widgets` (`HotelCard`, `FlightSummary`, `ItineraryTimeline`, `DestinationRecommendations`) and a tiny Express MCP server that mocks the `list_destinations`, `search_hotels`, `search_flights`, and `get_itinerary` tools.
 
-## What you can build today
-
-Use the booking template as a starting point — it covers the date / slot / confirmation flow that travel apps share. Add Travel widgets to `@conversokit/widgets` following the patterns in [`docs/widget-authoring.md`](../../docs/widget-authoring.md).
+## Run it
 
 ```bash
-npx conversokit create my-travel --template booking
+pnpm install     # from the repo root
+pnpm --filter example-ai-travel-planner dev
 ```
 
-## Want to contribute?
+This starts both the MCP server (`http://localhost:3000`) and the Vite UI (`http://localhost:5173`).
 
-Open an issue from the "Feature request" template and check the Travel category — we'd love a community PR adding HotelCard + FlightSummary widgets.
+## What's inside
+
+- **`src/App.tsx`** — four tabs (Discover · Hotels · Flights · Itinerary). Picking a destination on Discover propagates to Hotels and Flights and seeds the itinerary.
+- **`src/server.ts`** — Express server defining four tools backed by the example travel data exported from `@conversokit/shared` (`EXAMPLE_DESTINATIONS`, `EXAMPLE_HOTELS`, `EXAMPLE_FLIGHT`, `EXAMPLE_ITINERARY`).
+- **Theme** — `travelTheme` from `@conversokit/themes`.
+- **Consent** — wraps the UI in `ConsentBanner` with the `analytics` scope.
+
+## Going further
+
+Replace the in-memory data sources in `src/server.ts` with real APIs (Amadeus, Booking.com, Skyscanner, etc.). The widgets and the wire-format are unchanged — that's the point of the boilerplate.

@@ -1,27 +1,42 @@
-# Simple commerce app
+# Simple commerce app — Bean & Brew
 
-Minimal e-commerce assistant: search → add to cart → Stripe Checkout.
-
-## Generate it
+A runnable ConversoKit example: a 6-item coffee catalog wired to the **commerce template**'s widgets and tools. Defaults to `MockPaymentProvider`; flip a single env var to use real Stripe Checkout.
 
 ```bash
-npx conversokit create my-shop --template commerce
-cd my-shop
-pnpm install
-pnpm dev
+pnpm --filter example-simple-commerce-app dev
+# MCP server on :3000, widget UI on :5173
 ```
 
-## What ships
+## What this demonstrates
 
-| Layer | Surface |
-| --- | --- |
-| MCP tools | `search_products` (use the `set_cart` / `create_checkout` tools from the main repo when you need real checkout) |
-| Widgets | `ProductCarousel`, `AddToCartPanel`, `CheckoutSummary`, `CTABanner`, `ConsentBanner` |
-| Theme | `commerceTheme` |
-| Integrations | `StripeProvider` (falls back to `MockPaymentProvider` if `STRIPE_SECRET_KEY` is unset) |
+- Custom `Product[]` catalog instead of `EXAMPLE_PRODUCTS` from `@conversokit/shared`
+- `search_products` + `set_cart` + `create_checkout` tools using `defineTool`
+- `ProductCarousel`, `AddToCartPanel`, `CheckoutSummary`, `CTABanner`, `ConsentBanner` widgets
+- `commerceTheme` from `@conversokit/themes`
+- The fallback pattern: `createStripeProvider(env) ?? new MockPaymentProvider()`
 
-## Customise
+## Switch to real Stripe
 
-1. Replace `EXAMPLE_PRODUCTS` in `@conversokit/shared` with a real product source — or override the tool to hit your DB.
-2. Add a `priceLookup` callback when constructing `StripeProvider` so cart items resolve to real Stripe prices.
-3. Wire a persistent `OrderStore` (Supabase, Postgres) in `apps/mcp-server/src/store/orders.ts` before going live.
+```bash
+cp .env.example .env
+# Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET
+pnpm --filter example-simple-commerce-app dev
+```
+
+The server logs `payments: stripe` instead of `payments: mock` when env is set.
+
+## File map
+
+```
+examples/simple-commerce-app/
+├── src/
+│   ├── server.ts    # Express MCP server (3 tools)
+│   ├── App.tsx      # Catalog + checkout UI
+│   └── main.tsx     # React entry
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── .env.example
+└── README.md
+```

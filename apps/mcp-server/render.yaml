@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: conversokit-mcp
+    runtime: docker
+    repo: https://github.com/Xyborg/ConversoKit
+    rootDir: .
+    dockerfilePath: ./apps/mcp-server/Dockerfile
+    plan: starter
+    healthCheckPath: /tools
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: COOKIE_SECRET
+        sync: false

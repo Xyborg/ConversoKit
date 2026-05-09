@@ -1,38 +1,27 @@
-# Simple Commerce App Example
+# Simple commerce app
 
-This example demonstrates how to build a minimal e‑commerce assistant using the ConversoKit SDK.  It leverages the `search_products` tool defined in the MCP server and the `ProductCarousel` widget from the widgets package.
+Minimal e-commerce assistant: search → add to cart → Stripe Checkout.
 
-## Structure
-
-```
-examples/simple-commerce-app/
-├─ mcp-server/   # Custom MCP server configuration
-└─ widget-ui/    # Custom widget UI configuration
-```
-
-In this example the MCP server simply re‑exports the base implementation provided by the monorepo and adds no additional tools.  The widget UI imports the `ProductCarousel` component and uses it to render products returned from the server.
-
-## Running the example
-
-Make sure you have installed dependencies at the root of the monorepo:
+## Generate it
 
 ```bash
+npx conversokit create my-shop --template commerce
+cd my-shop
 pnpm install
+pnpm dev
 ```
 
-Then run the server and the UI:
+## What ships
 
-```bash
-pnpm --filter mcp-server dev
-pnpm --filter widget-ui dev
-```
+| Layer | Surface |
+| --- | --- |
+| MCP tools | `search_products` (use the `set_cart` / `create_checkout` tools from the main repo when you need real checkout) |
+| Widgets | `ProductCarousel`, `AddToCartPanel`, `CheckoutSummary`, `CTABanner`, `ConsentBanner` |
+| Theme | `commerceTheme` |
+| Integrations | `StripeProvider` (falls back to `MockPaymentProvider` if `STRIPE_SECRET_KEY` is unset) |
 
-Open `http://localhost:5173` in your browser to see the app in action.
+## Customise
 
-## Customising
-
-To customise this example for your own products:
-
-1. Update the `EXAMPLE_PRODUCTS` constant in `packages/shared/src/index.ts` with your own product data.
-2. Add additional tools to `apps/mcp-server/src/tools` to support features like product recommendations, cart management or checkout creation.
-3. Replace the `callTool` function in `apps/widget-ui/src/App.tsx` with the official Apps SDK bridge when running inside ChatGPT.
+1. Replace `EXAMPLE_PRODUCTS` in `@conversokit/shared` with a real product source — or override the tool to hit your DB.
+2. Add a `priceLookup` callback when constructing `StripeProvider` so cart items resolve to real Stripe prices.
+3. Wire a persistent `OrderStore` (Supabase, Postgres) in `apps/mcp-server/src/store/orders.ts` before going live.

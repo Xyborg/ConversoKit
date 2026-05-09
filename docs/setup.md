@@ -1,66 +1,60 @@
-# Setup Guide
+# Setup
 
-This guide walks you through setting up the ConversoKit SDK monorepo in a local development environment.
+Get a local dev environment running.
 
-## Prerequisites
+## Requirements
 
-- **Node.js 18+**: The MCP server and widget UI are built with modern ECMAScript features.
-- **pnpm**: A fast, disk‑efficient package manager used for managing dependencies across the monorepo.  Install globally via:
-
-  ```bash
-  npm install -g pnpm
-  ```
-
-- **Git**: To clone the repository and manage version control.
-
-## Installation
-
-Clone the repository and install dependencies:
+- Node.js ≥ 18 (Node 20 recommended)
+- pnpm ≥ 8
 
 ```bash
-git clone <your‑fork‑url> conversokit-sdk
-cd conversokit-sdk
+npm install -g pnpm
+```
+
+## Two ways to start
+
+### A — Use the CLI (fastest)
+
+```bash
+npx conversokit create my-app --template commerce   # or booking, saas-onboarding
+cd my-app
 pnpm install
+pnpm dev
 ```
 
-## Running the MCP server
-
-Start the server in development mode:
+### B — Clone the repo (contributor / boilerplate fork)
 
 ```bash
-pnpm --filter mcp-server dev
+git clone https://github.com/Xyborg/ConversoKit
+cd ConversoKit
+pnpm install
+pnpm dev
 ```
 
-The server will start on `http://localhost:3000`.  It exposes a `/tools` endpoint for listing available tools and a `/tools/:name` endpoint for invoking a specific tool.
+`pnpm dev` runs the MCP server (`:3000`) and widget UI (`:5173`) in parallel via Turborepo.
 
-## Running the widget UI
+## Environment
 
-Start the widget UI in development mode:
+Copy `.env.example` to `.env`. The defaults work for the local demo:
 
-```bash
-pnpm --filter widget-ui dev
-```
+- `PORT=3000` — MCP server port.
+- Auth and integrations are commented out — uncomment and fill the keys you actually use.
 
-The UI will be served at `http://localhost:5173`.  It will automatically reload when you make changes to the source files.
+## Common scripts
 
-## Developing widgets
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Run all apps in parallel |
+| `pnpm build` | Build every package + app |
+| `pnpm typecheck` | TS check across the workspace |
+| `pnpm test` | Vitest smoke tests |
+| `pnpm lint` | ESLint over every package |
+| `pnpm --filter mcp-server dev` | Just the server |
+| `pnpm --filter widget-ui dev` | Just the UI |
 
-Reusable widgets live under `packages/widgets`.  Each widget is a React component accompanied by TypeScript definitions.  To add a new widget:
+## Troubleshooting
 
-1. Create a new file in `packages/widgets/src` with your component and its props.
-2. Export the component from `packages/widgets/src/index.ts`.
-3. Rebuild the package with `pnpm --filter @conversokit/widgets build` or run it in watch mode with `pnpm --filter @conversokit/widgets dev`.
-
-## Publishing templates
-
-Templates live under `packages/templates`.  They describe collections of tools, widgets and sample data that can be used to scaffold new apps.  To add a template:
-
-1. Create a new function in `packages/templates/src/index.ts` that returns an object with `name`, `description`, `tools`, `widgets` and `exampleData` fields.
-2. Export the function from the module so that it can be imported by the CLI or scaffolding scripts.
-
-## Next steps
-
-- Add new tools to `apps/mcp-server/src/tools` to expose additional capabilities to ChatGPT.
-- Build integrations under `packages/integrations` to connect your app to external services like Stripe, HubSpot or Notion.
-- Implement authentication using the helpers in `packages/auth`.
-- Create rich themes under `packages/themes` to customise the look and feel of your widgets.
+- **Corepack signature error on first `pnpm install`** — known Node 24+/Corepack issue. Set `COREPACK_INTEGRITY_KEYS=0` and rerun, or install pnpm via `npm install -g pnpm@9`.
+- **`@conversokit/*` modules not found** — run `pnpm install` at the repo root, not inside one app.
+- **MCP tool call returns 401** — `CONVERSOKIT_API_KEYS` is set; either unset it for dev or send `Authorization: Bearer <key>` from your bridge.
+- **MCP tool call returns 412** — the tool requires consent. Send the `x-conversokit-consent` header (the bridge does this automatically when configured).

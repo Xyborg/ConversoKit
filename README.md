@@ -16,35 +16,48 @@ Includes:
 ## Quick start
 
 ```bash
+npx conversokit create my-app --template commerce
+cd my-app
+pnpm install
+pnpm dev
+```
+
+Templates: `commerce`, `booking`, `saas-onboarding`.
+
+Two services start in parallel:
+- **MCP server** → http://localhost:3000
+- **Widget UI** → http://localhost:5173
+
+## Or fork the repo
+
+```bash
 git clone https://github.com/Xyborg/ConversoKit
 cd ConversoKit
 pnpm install
 pnpm dev
 ```
 
-Two services start in parallel:
-
-- **MCP server** → http://localhost:3000 (`apps/mcp-server`)
-- **Widget UI** → http://localhost:5173 (`apps/widget-ui`)
-
-Open the widget UI in your browser. It calls the MCP server's `search_products` tool and renders the result with a `ProductCarousel`.
+The dev demo cycles through Commerce / Booking / Lead Gen tabs. Switch between 7 themes from the header.
 
 ## Repo structure
 
 ```
 ConversoKit/
 ├── apps/
-│   ├── mcp-server/      # MCP tool server (Express + Zod)
-│   └── widget-ui/       # React + Vite widget host
+│   ├── mcp-server/      # Express + Zod MCP tool server
+│   └── widget-ui/       # Vite + React widget host
 ├── packages/
-│   ├── widgets/         # Reusable React widgets
-│   ├── templates/       # Bootstrap-able app templates
-│   ├── integrations/    # Stripe, Supabase, HubSpot, …
-│   ├── auth/            # OAuth / JWT / API-key helpers
-│   ├── themes/          # Theme tokens
-│   └── shared/          # Cross-package types & schemas
-├── examples/            # Production-grade demo apps
-├── docs/                # Setup & authoring guides
+│   ├── widgets/         # 11 reusable React widgets (CSS-vars themed)
+│   ├── bridge/          # window.openai + fetch fallback
+│   ├── templates/       # commerce / booking / saas-onboarding
+│   ├── integrations/    # Stripe (real), HubSpot (stub), CRM/Payment interfaces
+│   ├── auth/            # API key, JWT (jose), Google OAuth, anonymous, OAuth stubs
+│   ├── themes/          # 7 themes + ThemeProvider
+│   ├── shared/          # Zod schemas, tool/widget contracts, mocks, compliance types
+│   └── cli/             # `npx conversokit create | add`
+├── examples/            # Per-template runnable references + roadmap stubs
+├── docs/                # Setup, deployment, MCP basics, widget authoring,
+│                        # integrations, compliance, app-review checklist
 └── scripts/
 ```
 
@@ -54,9 +67,9 @@ ConversoKit/
 | ----------------- | --------------------------------------------- |
 | `pnpm dev`        | Run all apps in parallel (turbo)              |
 | `pnpm build`      | Build every package + app                     |
-| `pnpm lint`       | Lint every package (where wired)              |
-| `pnpm test`       | Run tests across the workspace                |
 | `pnpm typecheck`  | Type-check every package                      |
+| `pnpm test`       | Vitest smoke tests                            |
+| `pnpm lint`       | ESLint over every package                     |
 
 Filter to a single workspace:
 
@@ -68,12 +81,20 @@ pnpm --filter @conversokit/widgets dev
 
 ## Adding things
 
-- **MCP tool** → new file in `apps/mcp-server/src/tools/`, append to the `tools` array in `tools/index.ts`. Tool shape: `{ name, description, inputSchema, outputSchema, handler }` (Zod schemas).
-- **Widget** → new component in `packages/widgets/src/`, export from `src/index.ts`.
-- **Template** → new factory in `packages/templates/src/index.ts` returning an `AppTemplate`. Tools and widgets are referenced **by name**, not by import.
-- **Integration** → new file in `packages/integrations/src/` exporting an interface + at least one implementation.
+- **MCP tool** → new file in `apps/mcp-server/src/tools/`, append to the `tools` array in `tools/index.ts`. Tool shape: `defineTool({ name, description, inputSchema, outputSchema, permissions, handler })`.
+- **Widget** → new component in `packages/widgets/src/`, export `<Name>Meta` + register in `registry.ts`.
+- **Template** → new factory in `packages/templates/src/`, exported from `index.ts`. Tools and widgets are referenced **by name**.
+- **Integration** → new file in `packages/integrations/src/` exporting an interface + a real impl + a mock fallback.
 
-See `docs/setup.md` for the full setup guide and `ChatGPT App Boilerplate Platform - PRD.md` for the product spec.
+## Documentation
+
+- [Setup](./docs/setup.md)
+- [MCP basics](./docs/mcp-basics.md)
+- [Widget authoring](./docs/widget-authoring.md)
+- [Integrations](./docs/integrations.md)
+- [Compliance](./docs/compliance.md)
+- [Deployment](./docs/deployment.md)
+- [App-review checklist](./docs/app-review-checklist.md)
 
 ## Requirements
 

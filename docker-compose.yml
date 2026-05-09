@@ -1,0 +1,23 @@
+services:
+  mcp-server:
+    build:
+      context: .
+      dockerfile: apps/mcp-server/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  widget-ui:
+    build:
+      context: .
+      dockerfile: apps/widget-ui/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - mcp-server
+    restart: unless-stopped

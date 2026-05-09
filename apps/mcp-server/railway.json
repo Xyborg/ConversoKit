@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "apps/mcp-server/Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "node apps/mcp-server/dist/index.js",
+    "healthcheckPath": "/tools",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

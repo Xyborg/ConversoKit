@@ -29,13 +29,25 @@ This is the **fallback pattern**. Set the integration's env keys and you get the
 
 ## What ships in 0.1.x
 
-| Domain | Real provider | Mock fallback |
+| Domain | Real providers | Mock / fallback |
 | --- | --- | --- |
-| Payments | `StripeProvider` (Stripe Checkout + webhooks) | `MockPaymentProvider` |
-| CRM | `HubspotProvider` (stub — throws "not implemented") | `MockCrmProvider` |
-| Auth (OAuth) | `GoogleOAuthProvider` | `googleProvider(env) → null` |
+| Payments | `StripeProvider` (Stripe Checkout + webhooks + idempotency) | `MockPaymentProvider` |
+| CRM | `HubspotProvider` (CRM v3 create-or-PATCH on email conflict) | `MockCrmProvider` |
+| Email | `ResendEmailProvider`, `CloudflareEmailProvider` (beta) | `MockEmailProvider` |
+| Persistent stores | `SupabaseCartStore` / `OrderStore` / `ReservationStore` / `LeadStore` / `UserDataStore` | `InMemory*` defaults in `apps/mcp-server/src/store/` |
+| Auth — OAuth flow | `GoogleOAuthProvider`, `GitHubOAuthProvider`, `MicrosoftOAuthProvider`, `Auth0Provider` | factory `→ null` when env missing |
+| Auth — JWT-verify | `bearerJwtProvider` (HS256 / JWKS), `clerkAuthProvider` (JWKS), `supabaseAuthProvider` (HS256) | — |
 
-The PRD calls out more (Shopify, Supabase, Airtable, Notion, Salesforce, Resend, Zapier, Webhooks). Each has the same shape: a provider interface in `packages/integrations/src/<domain>.ts`, factory keyed off env.
+Each factory follows the same shape: `create<Provider>(env)` returns `null` when its env keys are missing, so consumers write `real ?? mock`.
+
+### JWT-verify providers (Clerk, Supabase Auth)
+
+`bearerJwtProvider({ secret? | jwksUri?, issuer?, audience? })` is the underlying primitive — it verifies bearer tokens from the `Authorization` header against either an HS256 shared secret or a remote JWKS.
+
+- **Clerk** — `clerkAuthProvider(env)` derives the Clerk frontend API host from `CLERK_PUBLISHABLE_KEY` (or override via `CLERK_FRONTEND_API`) and verifies tokens against `https://<frontendApi>/.well-known/jwks.json` with the matching issuer.
+- **Supabase Auth** — `supabaseAuthProvider(env)` reads `SUPABASE_JWT_SECRET` for HS256 verification; if `SUPABASE_URL` is also set, the issuer is pinned to `${SUPABASE_URL}/auth/v1`.
+
+Both are `null` when their env is unset — wire them into `createAuthMiddleware({ providers })` alongside the other providers and the chain just skips them.
 
 ## Stripe
 

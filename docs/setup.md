@@ -16,7 +16,7 @@ npm install -g pnpm
 ### A — Use the CLI (fastest)
 
 ```bash
-npx conversokit create my-app --template commerce   # or booking, saas-onboarding
+npx conversokit create my-app --template commerce   # or booking | saas-onboarding | travel | dashboard
 cd my-app
 pnpm install
 pnpm dev

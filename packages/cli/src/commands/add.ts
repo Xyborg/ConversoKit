@@ -52,6 +52,13 @@ const KNOWN_INTEGRATIONS: Record<
     wireUpHint:
       "import { createResendProvider } from '@conversokit/integrations';\n" +
       'const email = createResendProvider(process.env);'
+  },
+  cloudflare: {
+    pkg: '@conversokit/integrations',
+    envVars: ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_EMAIL_API_TOKEN'],
+    wireUpHint:
+      "import { createCloudflareEmailProvider } from '@conversokit/integrations';\n" +
+      'const email = createCloudflareEmailProvider(process.env);'
   }
 };
 

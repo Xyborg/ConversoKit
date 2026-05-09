@@ -12,6 +12,11 @@ export {
   type ResendEmailProviderOptions
 } from './resend.js';
 export {
+  CloudflareEmailProvider,
+  createCloudflareEmailProvider,
+  type CloudflareEmailProviderOptions
+} from './cloudflare.js';
+export {
   StripeProvider,
   createStripeProvider,
   type StripeProviderOptions,

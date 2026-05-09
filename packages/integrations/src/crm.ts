@@ -18,7 +18,7 @@ export interface CrmProvider {
 
 export class MockCrmProvider implements CrmProvider {
   id = 'mock';
-  async upsertContact(contact: CrmContact): Promise<CrmUpsertResult> {
+  async upsertContact(_contact: CrmContact): Promise<CrmUpsertResult> {
     return {
       id: `mock_${Math.random().toString(36).slice(2)}`,
       ok: true,

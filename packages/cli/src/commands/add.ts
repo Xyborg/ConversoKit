@@ -256,7 +256,7 @@ async function addTemplate(name: string, force: boolean): Promise<void> {
   // wasn't passed, refuse.
   if (!force) {
     const conflicts: string[] = [];
-    async function walk(src: string, relRoot: string): Promise<void> {
+    const walk = async (src: string, relRoot: string): Promise<void> => {
       const entries = await fs.readdir(src, { withFileTypes: true });
       for (const entry of entries) {
         const rel = join(relRoot, entry.name);
@@ -266,7 +266,7 @@ async function addTemplate(name: string, force: boolean): Promise<void> {
           conflicts.push(rel);
         }
       }
-    }
+    };
     await walk(overlayDir, '.');
     if (conflicts.length > 0) {
       console.log(

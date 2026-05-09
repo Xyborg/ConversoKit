@@ -62,7 +62,7 @@ export const deployCommand = new Command('deploy')
 
     if (!opts.force) {
       const conflicts: string[] = [];
-      async function walk(src: string, relRoot: string): Promise<void> {
+      const walk = async (src: string, relRoot: string): Promise<void> => {
         const entries = await fs.readdir(src, { withFileTypes: true });
         for (const entry of entries) {
           const rel = relRoot ? join(relRoot, entry.name) : entry.name;
@@ -73,7 +73,7 @@ export const deployCommand = new Command('deploy')
             conflicts.push(rel);
           }
         }
-      }
+      };
       await walk(overlayDir, '');
       if (conflicts.length > 0) {
         console.log(chalk.yellow('⚠ The following files already exist:'));

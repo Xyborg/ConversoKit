@@ -1,4 +1,6 @@
-# ConversoKit
+# ConversoKit :: Build Apps for ChatGPT
+
+**ConversoKit** is the open-source framework for **production-ready ChatGPT Apps**. Compose 19 themed widgets, 16 MCP tools, and 5 templates, and ship in under 30 minutes.
 
 > **Latest:** v0.1.1 — see [CHANGELOG.md](./CHANGELOG.md).
 

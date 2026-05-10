@@ -1,5 +1,7 @@
 # ConversoKit
 
+> **Latest:** v0.1.1 — see [CHANGELOG.md](./CHANGELOG.md).
+
 Build production applications using the OpenAI Apps SDK and MCP.
 
 Includes:
@@ -38,6 +40,81 @@ pnpm dev
 ```
 
 The dev demo cycles through Commerce / Booking / Lead Gen / Travel / Dashboard tabs. Switch between 7 themes from the header.
+
+## Architecture
+
+### Data flow
+
+A user prompt flows from ChatGPT to the MCP server, gets typed by Zod, hits an integration, and renders back as a themed React widget — same path in production as in local dev (the Widget Bridge picks `window.openai.callTool` when present, `fetch` otherwise).
+
+```mermaid
+flowchart LR
+    User([User in ChatGPT]) --> Widgets["@conversokit/widgets<br/>(React)"]
+    Widgets <--> Bridge["@conversokit/bridge"]
+    Bridge -->|"window.openai.callTool<br/>or fetch"| MCP["apps/mcp-server<br/>(Express + Zod)"]
+    MCP --> Auth["@conversokit/auth<br/>+ consent middleware"]
+    Auth --> Tools["Tools (16)<br/>defineTool + Zod"]
+    Tools --> Integrations["@conversokit/integrations"]
+    Integrations --> External[("Stripe · HubSpot · Resend<br/>Supabase · external APIs")]
+```
+
+### Package graph
+
+The 8 publishable packages compose around `@conversokit/shared` (schemas/types). Templates pull widgets + integrations; widgets pull themes; auth and the CLI stand alone.
+
+```mermaid
+flowchart TD
+    shared["@conversokit/shared"]
+    themes["@conversokit/themes"]
+    bridge["@conversokit/bridge"]
+    auth["@conversokit/auth"]
+    widgets["@conversokit/widgets"]
+    integrations["@conversokit/integrations"]
+    templates["@conversokit/templates"]
+    cli["conversokit (CLI)"]
+
+    bridge --> shared
+    widgets --> shared
+    widgets --> themes
+    integrations --> shared
+    templates --> shared
+    templates --> widgets
+    templates --> integrations
+```
+
+### Request lifecycle
+
+Two phases per interaction: ChatGPT calls a tool to render a widget, then the widget calls a tool back through the bridge when the user takes action.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant ChatGPT
+    participant Widget as Widget (React)
+    participant Bridge as Widget Bridge
+    participant MCP as MCP Server
+    participant Tool as Tool handler
+    participant Ext as Integration / Store
+
+    User->>ChatGPT: "find me a hotel in Lisbon"
+    ChatGPT->>MCP: POST /tools/search_hotels
+    MCP->>Tool: validate input (Zod) + auth + consent
+    Tool->>Ext: HotelProvider.search(...)
+    Ext-->>Tool: results
+    Tool-->>MCP: validated output (Zod)
+    MCP-->>ChatGPT: tool result
+    ChatGPT->>Widget: render <HotelCard /> with data
+
+    User->>Widget: click "Book"
+    Widget->>Bridge: bridge.callTool('reserve_room', input)
+    Bridge->>MCP: window.openai.callTool (or fetch fallback)
+    MCP->>Tool: validate + check consent
+    Tool->>Ext: ReservationStore + Stripe.checkout
+    Ext-->>Tool: { sessionUrl }
+    Tool-->>MCP: { sessionUrl }
+    MCP-->>Bridge: response
+    Bridge-->>Widget: redirect
+```
 
 ## Repo structure
 

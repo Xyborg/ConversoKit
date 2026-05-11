@@ -34,7 +34,8 @@
     "dev": "tsc --project tsconfig.json --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "echo \"no tests yet\""
+    "test": "echo \"no tests yet\"",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@conversokit/widgets": "workspace:*",

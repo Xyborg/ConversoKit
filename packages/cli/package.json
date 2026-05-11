@@ -41,7 +41,8 @@
     "dev": "tsc --project tsconfig.json --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "chalk": "^5.3.0",

@@ -145,6 +145,21 @@ ConversoKit/
 └── scripts/
 ```
 
+## Packages
+
+Each package ships standalone on npm — install only what you need.
+
+| Package | npm | Purpose |
+| --- | --- | --- |
+| [`@conversokit/shared`](./packages/shared/README.md) | [npm](https://www.npmjs.com/package/@conversokit/shared) | Zod schemas, tool/widget contracts, mocks |
+| [`@conversokit/themes`](./packages/themes/README.md) | [npm](https://www.npmjs.com/package/@conversokit/themes) | 7 themes + `<ThemeProvider>` |
+| [`@conversokit/widgets`](./packages/widgets/README.md) | [npm](https://www.npmjs.com/package/@conversokit/widgets) | 19 React widgets |
+| [`@conversokit/bridge`](./packages/bridge/README.md) | [npm](https://www.npmjs.com/package/@conversokit/bridge) | `window.openai.callTool` + fetch fallback |
+| [`@conversokit/auth`](./packages/auth/README.md) | [npm](https://www.npmjs.com/package/@conversokit/auth) | API key, JWT, OAuth providers, Express middleware |
+| [`@conversokit/integrations`](./packages/integrations/README.md) | [npm](https://www.npmjs.com/package/@conversokit/integrations) | Stripe, HubSpot, Resend, Supabase |
+| [`@conversokit/templates`](./packages/templates/README.md) | [npm](https://www.npmjs.com/package/@conversokit/templates) | App scaffolds (commerce, booking, …) |
+| [`conversokit`](./packages/cli/README.md) | [npm](https://www.npmjs.com/package/conversokit) | `npx conversokit create / add / deploy` |
+
 ## Scripts
 
 | Command           | What it does                                  |
@@ -189,6 +204,13 @@ Re-run with `--force` to overwrite. Each command prints the next-step CLI comman
 - [Compliance](./docs/compliance.md)
 - [Deployment](./docs/deployment.md)
 - [App-review checklist](./docs/app-review-checklist.md)
+
+### Learn more
+
+- [OpenAI Apps SDK](https://platform.openai.com/docs/apps-sdk) — the host runtime ConversoKit targets
+- [Model Context Protocol](https://modelcontextprotocol.io) — the tool-calling protocol underneath
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) — reference implementation
+- [Apps SDK examples](https://github.com/openai/apps-sdk-examples) — OpenAI's first-party samples
 
 ## Requirements
 

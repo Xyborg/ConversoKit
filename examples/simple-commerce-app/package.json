@@ -1,6 +1,6 @@
 {
   "name": "example-simple-commerce-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Runnable commerce example: 6-item coffee catalog + Stripe (or Mock) checkout.",

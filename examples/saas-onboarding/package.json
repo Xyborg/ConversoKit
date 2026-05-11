@@ -1,6 +1,6 @@
 {
   "name": "example-saas-onboarding",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Runnable SaaS onboarding example: 5-step lead form + HubSpot upsert.",

@@ -1,6 +1,6 @@
 {
   "name": "@conversokit/auth",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Auth providers (API key, JWT/JWKS, Google/GitHub/Microsoft/Auth0 OAuth, Clerk, Supabase) and Express middleware for ConversoKit ChatGPT Apps.",
   "license": "Apache-2.0",
   "keywords": [

@@ -1,6 +1,6 @@
 {
   "name": "@conversokit/templates",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "App templates (commerce, booking, saas-onboarding, travel, dashboard) declaring tools, widgets, integrations, auth, and consent for ConversoKit.",
   "license": "Apache-2.0",
   "keywords": [

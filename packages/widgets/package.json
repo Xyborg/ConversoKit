@@ -1,6 +1,6 @@
 {
   "name": "@conversokit/widgets",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "19 themed React widgets for ConversoKit (commerce, booking, lead-gen, travel, dashboard, consent) — every widget styled via `--ck-*` CSS variables.",
   "license": "Apache-2.0",
   "keywords": [

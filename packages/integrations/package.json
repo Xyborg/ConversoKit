@@ -1,6 +1,6 @@
 {
   "name": "@conversokit/integrations",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Real and mock integrations for ConversoKit: Stripe, HubSpot, Resend, Cloudflare Email, and Supabase persistent stores.",
   "license": "Apache-2.0",
   "keywords": [

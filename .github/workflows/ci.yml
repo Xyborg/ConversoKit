@@ -69,10 +69,29 @@ jobs:
           version: pnpm version-packages
           commit: "chore(release): version packages"
           title: "chore(release): version packages"
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create umbrella GitHub release
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          set -e
+          ver=$(node -p "require('./package.json').version")
+          tag="v$ver"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists, skipping."
+            exit 0
+          fi
+          notes=$(node scripts/aggregate-release-notes.js "$PUBLISHED_PACKAGES")
+          gh release create "$tag" \
+            --title "ConversoKit $tag" \
+            --notes "$notes"
 
       - name: Verify published versions
         if: steps.changesets.outputs.published == 'true'

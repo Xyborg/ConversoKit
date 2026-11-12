@@ -24,9 +24,11 @@ export const createCheckoutTool = defineTool({
     url: z.string().url(),
     provider: z.string()
   }),
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
   permissions: {
     requiresAuth: false,
-    requiresConsent: true
+    requiresConsent: true,
+    consentScopes: ['personalData']
   },
   async handler(input, ctx) {
     const cart = await defaultCartStore.get(ctx.sessionId);

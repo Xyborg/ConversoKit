@@ -1,82 +1,62 @@
-# Deployment
+# Deployment and host connection
 
-ConversoKit is two deployable artifacts:
+Use Node **20 or newer** and pnpm 9. Deploy the MCP server together with `apps/widget-ui/dist/index.html`: the server reads this single-file bundle when the host requests the UI resource. A separate static UI host is optional for the standalone REST preview.
 
-- **MCP server** (`apps/mcp-server`) — Express, Node ≥18.
-- **Widget UI** (`apps/widget-ui`) — static Vite output.
-
-The widget UI talks to the MCP server via HTTPS (or `window.openai` inside ChatGPT). Deploy them together or separately.
-
-## Quickstart: `conversokit deploy`
-
-The CLI writes deployment config straight into your project root:
+## Generated projects
 
 ```bash
-npx conversokit deploy vercel    # writes vercel.json + api/mcp.ts
-npx conversokit deploy docker    # writes Dockerfile + docker-compose.yml + .dockerignore
-npx conversokit deploy railway   # writes railway.json + Procfile
+pnpm install
+pnpm dev
+# MCP: http://localhost:3000/mcp
+# Standalone preview: http://localhost:5173
 ```
 
-Re-run with `--force` to overwrite. The MCP server already answers `GET /health` so the platform health checks work out of the box. Each command prints next-step CLI instructions for that target.
+`pnpm dev` builds the widget before starting the server, then watches both. For production use `pnpm build` followed by `pnpm start`. Export environment variables in your shell or configure them on the deployment platform; the generated server does not implicitly load `.env`. Set `VITE_PUBLIC_APP_URL` before building to control checkout success/cancel links.
 
-## Docker (works anywhere)
+For the repository demo, run `pnpm build` once, then `pnpm --filter mcp-server dev` and `pnpm --filter widget-ui dev`. Rebuild the widget after changes to update the MCP HTML resource.
 
-Multistage Dockerfiles ship in each app:
+## Verify the MCP endpoint
 
 ```bash
-docker build -f apps/mcp-server/Dockerfile -t conversokit-mcp .
-docker build -f apps/widget-ui/Dockerfile -t conversokit-ui .
-docker run -p 3000:3000 --env-file .env conversokit-mcp
+npx @modelcontextprotocol/inspector
 ```
 
-Or use the root `docker-compose.yml`:
+Choose Streamable HTTP and connect to `http://localhost:3000/mcp`. Verify tool discovery, call `show_app`, call data tools, and read `ui://conversokit/app-v1.html`. If the Inspector browser/proxy sends an Origin, add its exact origin to `MCP_ALLOWED_ORIGINS` before starting the server. Mutating tools that require consent should fail without a consent record.
+
+## Connect ChatGPT or Claude
+
+Expose the local server through an HTTPS tunnel, for example:
 
 ```bash
-docker compose up --build
-# UI on :8080, MCP on :3000
+cloudflared tunnel --url http://localhost:3000
 ```
 
-## Vercel (serverless MCP + static UI)
+Use **`https://<your-tunnel-host>/mcp`**, not `/`, `/tools`, or the Vite preview URL.
 
-`apps/mcp-server/vercel.json` configures `@vercel/node` for the Express handler. Run from each app:
+In ChatGPT, add a custom MCP server using the current Apps/Plugins developer interface. Configure the connector's authentication to match the server, enable the connection in a chat and ask it to call `show_app`. In Claude, add the same URL through the custom remote connector interface available to your account; use an MCP Apps-capable client to render the widget. UI labels and availability depend on the host/account. Refresh the connector after changing tool definitions.
+
+Verify actual interaction, not just discovery: open commerce, accept consent, load products, add a product and start checkout. Repeat booking, onboarding, travel and dashboard with their generated projects. For checkout the default provider is a **mock** unless configured; a rendered demo does not prove live payments or production storage are ready.
+
+## Deployment configurations
+
+Run these from a generated project root:
 
 ```bash
-cd apps/mcp-server && vercel --prod
-cd apps/widget-ui  && vercel --prod
+npx conversokit deploy docker
+npx conversokit deploy railway
+npx conversokit deploy vercel
 ```
 
-Set environment variables in the Vercel dashboard (`STRIPE_SECRET_KEY`, etc.).
+Choose one target; commit the generated lockfile before deployment. Docker and Railway build both apps. The Vercel config routes `/mcp` to the server function and includes the widget HTML in its bundle; deploy from the project root, not `apps/mcp-server` in isolation. `GET /health` is available without authentication. Production deployment to these platforms must be tested with your account and environment.
 
-## Fly.io
+For the repository demo, build Docker from the repository root with `docker build -f apps/mcp-server/Dockerfile -t conversokit-mcp .`.
 
-```bash
-cd apps/mcp-server
-fly launch --copy-config --no-deploy   # uses fly.toml
-fly secrets set STRIPE_SECRET_KEY=sk_test_... STRIPE_WEBHOOK_SECRET=whsec_...
-fly deploy
-```
+## Production configuration
 
-## Railway
+- Configure connector authentication server-side. API-key verification is supported; existing app login providers do not implement MCP OAuth discovery by themselves.
+- Replace anonymous in-memory stores with persistent, authenticated storage. Serverless instances do not share in-memory carts or reservations.
+- Set the public checkout return URL and configure real integrations, webhook verification and secrets separately. Never put API keys in `VITE_*` variables for hosted widgets.
+- Restrict REST CORS, MCP browser origins and ingress hostnames. Declare actual widget resource domains in CSP.
+- Add application/platform rate limits and restrict scopes. Tool annotations are descriptive, not authorization.
 
-```bash
-railway init
-railway up
-# config in apps/mcp-server/railway.json
-```
-
-## Render
-
-`apps/mcp-server/render.yaml` is a Render Blueprint:
-
-```bash
-# Connect your repo to Render and pick "Blueprint" — it picks up render.yaml.
-```
-
-## Production reminders
-
-- **Persistent stores.** The default `InMemory*` stores in `apps/mcp-server/src/store/` lose data on restart. Swap them for a DB-backed implementation before going live (see [`integrations.md`](./integrations.md)).
-- **CORS.** `cors()` defaults to `*`. In production, restrict to your widget UI origin.
-- **`COOKIE_SECRET`.** Set it. The dev fallback is intentionally weak.
-- **Stripe webhooks.** Configure the live webhook URL in your Stripe dashboard and store the corresponding `STRIPE_WEBHOOK_SECRET`.
-- **Rate limits.** Add `express-rate-limit` (or platform-level) on `/tools/:name` so a misbehaving caller can't burn through paid integrations.
-- **Health checks.** `GET /health` returns `{ ok: true }` and bypasses auth — point platform probes at it.
+See [MCP basics](mcp-basics.md) for the transport, consent contract and compatibility behavior, and [OpenAI's quickstart](https://developers.openai.com/plugins/build/app-quickstart) for the current ChatGPT connection flow.

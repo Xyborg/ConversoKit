@@ -7,6 +7,7 @@ export const cancelReservationTool = defineTool({
   description: 'Cancel an existing reservation by id.',
   inputSchema: z.object({ reservationId: z.string() }),
   outputSchema: z.object({ reservation: reservationSchema }),
+  annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const reservation = await defaultReservationStore.cancel(input.reservationId);

@@ -7,6 +7,7 @@ export const getCartTool = defineTool({
   description: 'Return the current cart for the calling session.',
   inputSchema: z.object({}),
   outputSchema: cartSchema,
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(_input, ctx) {
     const cart = await defaultCartStore.get(ctx.sessionId);

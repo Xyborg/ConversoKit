@@ -7,10 +7,7 @@ import {
   ProductCarousel,
   type ProductCardProps
 } from '@conversokit/widgets';
-import {
-  EXAMPLE_CHECKOUT_SUMMARY,
-  type CartItem
-} from '@conversokit/shared';
+import { type CartItem } from '@conversokit/shared';
 import { ThemeProvider, commerceTheme } from '@conversokit/themes';
 import { BridgeProvider, useBridge } from '@conversokit/bridge';
 
@@ -26,13 +23,27 @@ const Catalog: React.FC = () => {
       .catch(console.error);
   }, [bridge]);
 
+  const subtotal = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(
+    cart.reduce(
+      (sum, item) =>
+        sum + Number((item.price ?? '0').replace(/[^0-9.]/g, '')) * item.quantity,
+      0
+    )
+  );
   const checkout = async () => {
     await bridge.callTool('set_cart', { items: cart, currency: 'USD' });
     const result = (await bridge.callTool('create_checkout', {
-      successUrl: window.location.origin + '/?status=success',
-      cancelUrl: window.location.origin + '/?status=cancelled'
+      successUrl:
+        (import.meta.env.VITE_PUBLIC_APP_URL || 'http://localhost:5173') +
+        '/?status=success',
+      cancelUrl:
+        (import.meta.env.VITE_PUBLIC_APP_URL || 'http://localhost:5173') +
+        '/?status=cancelled'
     })) as { url: string };
-    window.location.href = result.url;
+    await bridge.openLink(result.url);
   };
 
   return (
@@ -46,7 +57,7 @@ const Catalog: React.FC = () => {
       )}
       {cart.length > 0 && (
         <CheckoutSummary
-          summary={{ ...EXAMPLE_CHECKOUT_SUMMARY, items: cart }}
+          summary={{ items: cart, subtotal, total: subtotal, currency: 'USD' }}
           onCheckout={checkout}
         />
       )}
@@ -60,12 +71,12 @@ const App: React.FC = () => (
       theme={commerceTheme}
       style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
     >
-      <h1>Welcome to <% projectName %></h1>
+      <h1>Welcome to {'<% projectName %>'}</h1>
       <CTABanner
         title="Commerce demo"
         description="Search → add to cart → checkout via Stripe (or MockPaymentProvider in dev)."
       />
-      <ConsentBanner scopes={['analytics']}>
+      <ConsentBanner scopes={['personalData']}>
         <Catalog />
       </ConsentBanner>
     </ThemeProvider>

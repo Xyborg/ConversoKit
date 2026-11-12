@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  EXAMPLE_TREND_SERIES,
-  defineTool,
-  trendSeriesSchema
-} from '@conversokit/shared';
+import { EXAMPLE_TREND_SERIES, defineTool, trendSeriesSchema } from '@conversokit/shared';
 
 export const getTrendSeriesTool = defineTool({
   name: 'get_trend_series',
@@ -13,6 +9,7 @@ export const getTrendSeriesTool = defineTool({
     range: z.enum(['7d', '30d', '12w', '12m']).optional()
   }),
   outputSchema: z.object({ series: trendSeriesSchema }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler() {
     return { series: EXAMPLE_TREND_SERIES };

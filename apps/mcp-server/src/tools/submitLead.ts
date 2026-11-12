@@ -20,15 +20,18 @@ export const submitLeadTool = defineTool({
     crmContactId: z.string().optional(),
     provider: z.string()
   }),
-  permissions: { requiresAuth: false, requiresConsent: true },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+  permissions: {
+    requiresAuth: false,
+    requiresConsent: true,
+    consentScopes: ['personalData']
+  },
   async handler(input) {
     const id = `lead_${Math.random().toString(36).slice(2)}`;
     await defaultLeadStore.put({ ...input, id });
 
-    const email =
-      typeof input.values.email === 'string' ? input.values.email : undefined;
-    const name =
-      typeof input.values.name === 'string' ? input.values.name : undefined;
+    const email = typeof input.values.email === 'string' ? input.values.email : undefined;
+    const name = typeof input.values.name === 'string' ? input.values.name : undefined;
     const company =
       typeof input.values.company === 'string' ? input.values.company : undefined;
 

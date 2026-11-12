@@ -29,6 +29,7 @@ pnpm dev
 Templates: `commerce`, `booking`, `saas-onboarding`, `travel`, `dashboard`.
 
 Two services start in parallel:
+
 - **MCP server** → http://localhost:3000 (`GET /health` is unauthenticated)
 - **Widget UI** → http://localhost:5173
 
@@ -47,22 +48,19 @@ The dev demo cycles through Commerce / Booking / Lead Gen / Travel / Dashboard t
 
 ### Data flow
 
-A user prompt flows from ChatGPT to the MCP server, gets typed by Zod, hits an integration, and renders back as a themed React widget — same path in production as in local dev (the Widget Bridge picks `window.openai.callTool` when present, `fetch` otherwise).
+ChatGPT and compatible MCP Apps hosts connect to `/mcp` using Streamable HTTP. The `show_app` tool opens a registered HTML widget; the widget initializes MCP Apps and calls business tools through the host. Standalone local previews retain REST support.
 
 ```mermaid
 flowchart LR
-    User([User in ChatGPT]) --> Widgets["@conversokit/widgets<br/>(React)"]
-    Widgets <--> Bridge["@conversokit/bridge"]
-    Bridge -->|"window.openai.callTool<br/>or fetch"| MCP["apps/mcp-server<br/>(Express + Zod)"]
-    MCP --> Auth["@conversokit/auth<br/>+ consent middleware"]
-    Auth --> Tools["Tools (16)<br/>defineTool + Zod"]
-    Tools --> Integrations["@conversokit/integrations"]
-    Integrations --> External[("Stripe · HubSpot · Resend<br/>Supabase · external APIs")]
+    Host["ChatGPT / MCP Apps host"] <-->|"JSON-RPC /mcp"| MCP["@conversokit/mcp"]
+    Widgets["React widget"] <-->|"MCP Apps bridge"| Host
+    MCP --> Tools["defineTool + Zod + permission checks"]
+    Tools --> Integrations["Stores and integrations"]
 ```
 
 ### Package graph
 
-The 8 publishable packages compose around `@conversokit/shared` (schemas/types). Templates pull widgets + integrations; widgets pull themes; auth and the CLI stand alone.
+The 9 publishable packages compose around `@conversokit/shared` (schemas/types). Templates pull widgets + integrations; widgets pull themes; auth and the CLI stand alone.
 
 ```mermaid
 flowchart TD
@@ -75,6 +73,7 @@ flowchart TD
     templates["@conversokit/templates"]
     cli["conversokit (CLI)"]
 
+    mcp["@conversokit/mcp"] --> shared
     bridge --> shared
     widgets --> shared
     widgets --> themes
@@ -86,44 +85,14 @@ flowchart TD
 
 ### Request lifecycle
 
-Two phases per interaction: ChatGPT calls a tool to render a widget, then the widget calls a tool back through the bridge when the user takes action.
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant ChatGPT
-    participant Widget as Widget (React)
-    participant Bridge as Widget Bridge
-    participant MCP as MCP Server
-    participant Tool as Tool handler
-    participant Ext as Integration / Store
-
-    User->>ChatGPT: "find me a hotel in Lisbon"
-    ChatGPT->>MCP: POST /tools/search_hotels
-    MCP->>Tool: validate input (Zod) + auth + consent
-    Tool->>Ext: HotelProvider.search(...)
-    Ext-->>Tool: results
-    Tool-->>MCP: validated output (Zod)
-    MCP-->>ChatGPT: tool result
-    ChatGPT->>Widget: render <HotelCard /> with data
-
-    User->>Widget: click "Book"
-    Widget->>Bridge: bridge.callTool('reserve_room', input)
-    Bridge->>MCP: window.openai.callTool (or fetch fallback)
-    MCP->>Tool: validate + check consent
-    Tool->>Ext: ReservationStore + Stripe.checkout
-    Ext-->>Tool: { sessionUrl }
-    Tool-->>MCP: { sessionUrl }
-    MCP-->>Bridge: response
-    Bridge-->>Widget: redirect
-```
+The host initializes MCP, discovers tools, calls `show_app`, and reads its HTML resource. The iframe completes `ui/initialize` before calling tools. Data tools return `structuredContent` plus model-readable text. See [MCP basics](docs/mcp-basics.md) and [Connect to ChatGPT / Claude](docs/deployment.md).
 
 ## Repo structure
 
 ```
 ConversoKit/
 ├── apps/
-│   ├── mcp-server/      # Express + Zod MCP tool server (16 tools, /health, /auth/:provider/*)
+│   ├── mcp-server/      # Streamable HTTP MCP server (16 business tools + show_app, /health, /auth/:provider/*)
 │   └── widget-ui/       # Vite + React widget host
 ├── packages/
 │   ├── widgets/         # 19 reusable React widgets (CSS-vars themed)
@@ -149,26 +118,27 @@ ConversoKit/
 
 Each package ships standalone on npm — install only what you need.
 
-| Package | npm | Purpose |
-| --- | --- | --- |
-| [`@conversokit/shared`](./packages/shared/README.md) | [npm](https://www.npmjs.com/package/@conversokit/shared) | Zod schemas, tool/widget contracts, mocks |
-| [`@conversokit/themes`](./packages/themes/README.md) | [npm](https://www.npmjs.com/package/@conversokit/themes) | 7 themes + `<ThemeProvider>` |
-| [`@conversokit/widgets`](./packages/widgets/README.md) | [npm](https://www.npmjs.com/package/@conversokit/widgets) | 19 React widgets |
-| [`@conversokit/bridge`](./packages/bridge/README.md) | [npm](https://www.npmjs.com/package/@conversokit/bridge) | `window.openai.callTool` + fetch fallback |
-| [`@conversokit/auth`](./packages/auth/README.md) | [npm](https://www.npmjs.com/package/@conversokit/auth) | API key, JWT, OAuth providers, Express middleware |
-| [`@conversokit/integrations`](./packages/integrations/README.md) | [npm](https://www.npmjs.com/package/@conversokit/integrations) | Stripe, HubSpot, Resend, Supabase |
-| [`@conversokit/templates`](./packages/templates/README.md) | [npm](https://www.npmjs.com/package/@conversokit/templates) | App scaffolds (commerce, booking, …) |
-| [`conversokit`](./packages/cli/README.md) | [npm](https://www.npmjs.com/package/conversokit) | `npx conversokit create / add / deploy` |
+| Package                                                          | npm                                                            | Purpose                                           |
+| ---------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------- |
+| [`@conversokit/shared`](./packages/shared/README.md)             | [npm](https://www.npmjs.com/package/@conversokit/shared)       | Zod schemas, tool/widget contracts, mocks         |
+| [`@conversokit/themes`](./packages/themes/README.md)             | [npm](https://www.npmjs.com/package/@conversokit/themes)       | 7 themes + `<ThemeProvider>`                      |
+| [`@conversokit/widgets`](./packages/widgets/README.md)           | [npm](https://www.npmjs.com/package/@conversokit/widgets)      | 19 React widgets                                  |
+| [`@conversokit/bridge`](./packages/bridge/README.md)             | [npm](https://www.npmjs.com/package/@conversokit/bridge)       | MCP Apps handshake + local REST fallback          |
+| [`@conversokit/mcp`](./packages/mcp/README.md)                   | Next release                                                   | Streamable HTTP tools + widget resources          |
+| [`@conversokit/auth`](./packages/auth/README.md)                 | [npm](https://www.npmjs.com/package/@conversokit/auth)         | API key, JWT, OAuth providers, Express middleware |
+| [`@conversokit/integrations`](./packages/integrations/README.md) | [npm](https://www.npmjs.com/package/@conversokit/integrations) | Stripe, HubSpot, Resend, Supabase                 |
+| [`@conversokit/templates`](./packages/templates/README.md)       | [npm](https://www.npmjs.com/package/@conversokit/templates)    | App scaffolds (commerce, booking, …)              |
+| [`conversokit`](./packages/cli/README.md)                        | [npm](https://www.npmjs.com/package/conversokit)               | `npx conversokit create / add / deploy`           |
 
 ## Scripts
 
-| Command           | What it does                                  |
-| ----------------- | --------------------------------------------- |
-| `pnpm dev`        | Run all apps in parallel (turbo)              |
-| `pnpm build`      | Build every package + app                     |
-| `pnpm typecheck`  | Type-check every package                      |
-| `pnpm test`       | Vitest smoke tests                            |
-| `pnpm lint`       | ESLint over every package                     |
+| Command          | What it does                     |
+| ---------------- | -------------------------------- |
+| `pnpm dev`       | Run all apps in parallel (turbo) |
+| `pnpm build`     | Build every package + app        |
+| `pnpm typecheck` | Type-check every package         |
+| `pnpm test`      | Vitest smoke tests               |
+| `pnpm lint`      | ESLint over every package        |
 
 Filter to a single workspace:
 

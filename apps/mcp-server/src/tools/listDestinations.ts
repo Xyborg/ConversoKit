@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  EXAMPLE_DESTINATIONS,
-  defineTool,
-  destinationSchema
-} from '@conversokit/shared';
+import { EXAMPLE_DESTINATIONS, defineTool, destinationSchema } from '@conversokit/shared';
 
 export const listDestinationsTool = defineTool({
   name: 'list_destinations',
@@ -14,6 +10,7 @@ export const listDestinationsTool = defineTool({
     limit: z.number().int().min(1).max(50).optional()
   }),
   outputSchema: z.object({ items: z.array(destinationSchema) }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const lower = input.query?.toLowerCase();

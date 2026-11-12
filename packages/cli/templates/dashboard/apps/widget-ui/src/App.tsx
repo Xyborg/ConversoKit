@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  AlertFeed,
-  AnalyticsPanel,
-  CTABanner
-} from '@conversokit/widgets';
+import { AlertFeed, AnalyticsPanel, CTABanner } from '@conversokit/widgets';
 import {
   type Alert,
   type AnalyticsPanel as AnalyticsPanelData
@@ -45,17 +41,16 @@ const Dashboard: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const apiKey = (import.meta.env?.VITE_CONVERSOKIT_API_KEY as string) || undefined;
   return (
-    <BridgeProvider baseUrl="http://localhost:3000" apiKey={apiKey}>
+    <BridgeProvider baseUrl="http://localhost:3000">
       <ThemeProvider
         theme={enterpriseTheme}
         style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
       >
-        <h1>Welcome to <% projectName %></h1>
+        <h1>Welcome to {'<% projectName %>'}</h1>
         <CTABanner
           title="Internal dashboard"
-          description="Set CONVERSOKIT_API_KEYS in apps/mcp-server/.env and pass it via VITE_CONVERSOKIT_API_KEY."
+          description="Sample analytics. Configure connector authentication before connecting private data."
         />
         <Dashboard />
       </ThemeProvider>

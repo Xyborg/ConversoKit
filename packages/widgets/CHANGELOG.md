@@ -1,5 +1,12 @@
 # @conversokit/widgets
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [6fe7be1]
+  - @conversokit/themes@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes

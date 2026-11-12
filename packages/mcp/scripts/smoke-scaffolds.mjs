@@ -215,10 +215,12 @@ try {
     await devClient.connect(
       new StreamableHTTPClientTransport(new URL('http://127.0.0.1:33200/mcp'))
     );
-    const resource = await devClient.readResource({
-      uri: 'ui://conversokit/app-v1.html'
-    });
-    assert(String(resource.contents[0].text).includes('<script'));
+    // The initial watch build must not remove the already served widget.
+    for (let n = 0; n < 20; n++) {
+      const resource = await devClient.readResource({ uri: 'ui://conversokit/app-v1.html' });
+      assert(String(resource.contents[0].text).includes('<script'));
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
   } finally {
     await devClient.close();
   }

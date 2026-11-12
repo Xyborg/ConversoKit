@@ -1,4 +1,4 @@
-import type { Theme } from './index.js';
+import type { Theme } from './themes.js';
 
 export function themeToCssVars(theme: Theme): Record<string, string> {
   return {

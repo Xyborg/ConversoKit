@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import type { Theme } from './index.js';
+import type { Theme } from './themes.js';
 import { themeToCssVars } from './css.js';
-import { lightTheme } from './index.js';
+import { lightTheme } from './themes.js';
 
 const ThemeContext = createContext<Theme>(lightTheme);
 

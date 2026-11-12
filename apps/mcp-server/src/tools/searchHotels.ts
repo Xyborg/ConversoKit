@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  EXAMPLE_HOTELS,
-  defineTool,
-  hotelSchema
-} from '@conversokit/shared';
+import { EXAMPLE_HOTELS, defineTool, hotelSchema } from '@conversokit/shared';
 
 export const searchHotelsTool = defineTool({
   name: 'search_hotels',
@@ -14,6 +10,7 @@ export const searchHotelsTool = defineTool({
     limit: z.number().int().min(1).max(50).optional()
   }),
   outputSchema: z.object({ items: z.array(hotelSchema) }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const { query, limit = 10 } = input;

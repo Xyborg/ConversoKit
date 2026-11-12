@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  EXAMPLE_FLIGHT,
-  defineTool,
-  flightSummarySchema
-} from '@conversokit/shared';
+import { EXAMPLE_FLIGHT, defineTool, flightSummarySchema } from '@conversokit/shared';
 
 export const searchFlightsTool = defineTool({
   name: 'search_flights',
@@ -15,6 +11,7 @@ export const searchFlightsTool = defineTool({
     returnDate: z.string().optional()
   }),
   outputSchema: z.object({ items: z.array(flightSummarySchema) }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler() {
     return { items: [EXAMPLE_FLIGHT] };

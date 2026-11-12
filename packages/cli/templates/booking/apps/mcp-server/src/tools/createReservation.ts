@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  EXAMPLE_AVAILABILITY,
-  defineTool,
-  reservationSchema
-} from '@conversokit/shared';
+import { EXAMPLE_AVAILABILITY, defineTool, reservationSchema } from '@conversokit/shared';
 
 export const createReservationTool = defineTool({
   name: 'create_reservation',
@@ -17,7 +13,12 @@ export const createReservationTool = defineTool({
     })
   }),
   outputSchema: z.object({ reservation: reservationSchema }),
-  permissions: { requiresAuth: false, requiresConsent: true },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  permissions: {
+    requiresAuth: false,
+    requiresConsent: true,
+    consentScopes: ['personalData']
+  },
   async handler(input) {
     const slot =
       EXAMPLE_AVAILABILITY.slots.find((s) => s.id === input.slotId) ??

@@ -1,10 +1,10 @@
 {
   "name": "conversokit",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "CLI for ConversoKit — scaffold ChatGPT Apps in <30 minutes. Includes `create`, `add`, and `deploy` commands.",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "repository": {
     "type": "git",

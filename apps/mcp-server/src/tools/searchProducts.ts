@@ -1,15 +1,8 @@
 import { z } from 'zod';
-import {
-  productSchema,
-  EXAMPLE_PRODUCTS,
-  defineTool
-} from '@conversokit/shared';
+import { productSchema, EXAMPLE_PRODUCTS, defineTool } from '@conversokit/shared';
 
 export const searchProductsInputSchema = z.object({
-  query: z
-    .string()
-    .min(0)
-    .describe('Free‑text search phrase used to find products'),
+  query: z.string().min(0).describe('Free‑text search phrase used to find products'),
   limit: z
     .number()
     .int()
@@ -29,6 +22,7 @@ export const searchProductsTool = defineTool({
     'Search for products based on a free‑text query and return a list of matching products.',
   inputSchema: searchProductsInputSchema,
   outputSchema: searchProductsOutputSchema,
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const { query, limit = 10 } = input;

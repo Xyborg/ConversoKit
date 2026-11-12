@@ -31,11 +31,7 @@ import {
   type Reservation,
   type TimeSlot
 } from '@conversokit/shared';
-import {
-  ThemeProvider,
-  themes,
-  type Theme
-} from '@conversokit/themes';
+import { ThemeProvider, themes, type Theme } from '@conversokit/themes';
 import { BridgeProvider, useBridge } from '@conversokit/bridge';
 
 type TabKey = 'commerce' | 'booking' | 'leadgen' | 'travel' | 'dashboard';
@@ -88,19 +84,16 @@ const CommerceTab: React.FC = () => {
       // Persist cart server-side, then start checkout.
       await bridge.callTool('set_cart', { items: cart, currency: 'USD' });
       const result = (await bridge.callTool('create_checkout', {
-        successUrl: window.location.origin + '/?status=success',
-        cancelUrl: window.location.origin + '/?status=cancelled'
+        successUrl:
+          (import.meta.env.VITE_PUBLIC_APP_URL || 'http://localhost:5173') +
+          '/?status=success',
+        cancelUrl:
+          (import.meta.env.VITE_PUBLIC_APP_URL || 'http://localhost:5173') +
+          '/?status=cancelled'
       })) as { url: string; provider: string };
-      const opener = window.openai?.openExternalUrl;
-      if (opener) {
-        await opener(result.url);
-      } else {
-        window.location.href = result.url;
-      }
+      await bridge.openLink(result.url);
     } catch (err) {
-      setCheckoutError(
-        err instanceof Error ? err.message : 'Checkout failed'
-      );
+      setCheckoutError(err instanceof Error ? err.message : 'Checkout failed');
     }
   };
 
@@ -202,6 +195,7 @@ const BookingTab: React.FC = () => {
     <div style={sectionStyle}>
       {error && <CTABanner title="Error" description={error} variant="danger" />}
       <AvailabilityCalendar
+        initialMonth={new Date(EXAMPLE_AVAILABILITY.date + 'T12:00:00')}
         availableDates={availableDates}
         selectedDate={date}
         onSelect={setDate}
@@ -331,10 +325,7 @@ const TravelTab: React.FC = () => {
   return (
     <div style={sectionStyle}>
       {error && <CTABanner title="Error" description={error} variant="danger" />}
-      <DestinationRecommendations
-        destinations={destinations}
-        onSelect={handlePick}
-      />
+      <DestinationRecommendations destinations={destinations} onSelect={handlePick} />
       {picked && (
         <CTABanner
           title={`Plan a trip to ${picked.name}`}
@@ -397,7 +388,7 @@ const DashboardTab: React.FC = () => {
       {error && (
         <CTABanner
           title="Dashboard tools require auth"
-          description={`${error} — set CONVERSOKIT_API_KEYS in apps/mcp-server/.env and pass it via VITE_CONVERSOKIT_API_KEY.`}
+          description={`${error} — configure authentication in the connector.`}
           variant="danger"
         />
       )}
@@ -417,10 +408,9 @@ const App: React.FC = () => {
   const [themeName, setThemeName] = useState<string>('light');
   const [tab, setTab] = useState<TabKey>('commerce');
   const theme: Theme = themes[themeName];
-  const apiKey = (import.meta.env?.VITE_CONVERSOKIT_API_KEY as string) || undefined;
 
   return (
-    <BridgeProvider baseUrl="http://localhost:3000" apiKey={apiKey}>
+    <BridgeProvider baseUrl="http://localhost:3000">
       <ThemeProvider
         theme={theme}
         style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
@@ -436,9 +426,7 @@ const App: React.FC = () => {
           }}
         >
           <h1 style={{ margin: 0 }}>ConversoKit Widgets</h1>
-          <label
-            style={{ fontSize: 'var(--ck-font-size-sm)', color: 'var(--ck-muted)' }}
-          >
+          <label style={{ fontSize: 'var(--ck-font-size-sm)', color: 'var(--ck-muted)' }}>
             Theme:{' '}
             <select
               value={themeName}

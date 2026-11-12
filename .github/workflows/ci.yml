@@ -34,6 +34,10 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Validate packed CLI and MCP templates
+        timeout-minutes: 10
+        run: node packages/mcp/scripts/smoke-scaffolds.mjs
+
   release:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -82,7 +86,7 @@ jobs:
           PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
         run: |
           set -e
-          ver=$(node -p "require('./package.json').version")
+          ver=$(node -p "require('./packages/cli/package.json').version")
           tag="v$ver"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release $tag already exists, skipping."

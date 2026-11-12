@@ -1,44 +1,24 @@
 # @conversokit/bridge
 
-Widget Bridge for ConversoKit — `<BridgeProvider>` + `useBridge()` that prefers `window.openai.callTool` and falls back to `fetch` for local dev.
-
-Part of [ConversoKit](https://github.com/Xyborg/ConversoKit) — a boilerplate for building ChatGPT Apps (Apps SDK / MCP) in <30 minutes.
-
-## Install
-
-```bash
-pnpm add @conversokit/bridge react
-# or
-npm install @conversokit/bridge react
-```
-
-## Usage
+MCP Apps bridge for ConversoKit React widgets. Hosted iframes initialize the standard MCP Apps protocol; standalone pages use the local REST development server.
 
 ```tsx
-import { BridgeProvider, useBridge } from '@conversokit/bridge';
+import { BridgeProvider, useBridge, useToolOutput } from '@conversokit/bridge';
 
-export function App() {
-  return (
-    <BridgeProvider baseUrl="http://localhost:3000">
-      <Search />
-    </BridgeProvider>
-  );
-}
+// Wrap your React tree:
+<BridgeProvider baseUrl="http://localhost:3000">
+  <App />
+</BridgeProvider>;
 
-function Search() {
-  const bridge = useBridge();
-  const onSearch = async (query: string) => {
-    const { products } = await bridge.callTool('search_products', { query });
-  };
-}
+// Inside a child component:
+const bridge = useBridge();
+const initialResult = useToolOutput();
+const result = await bridge.callTool('search_products', { query: '' });
+await bridge.openLink('https://example.com/checkout');
 ```
 
-Inside ChatGPT, the bridge calls `window.openai.callTool` directly. Outside (local dev, Storybook), it falls back to `fetch(<baseUrl>/tools/<name>)`.
+`callTool` unwraps MCP `structuredContent` and throws on tool errors. The provider manages initialization and cleanup. `useToolOutput` receives model-initiated results; `window.openai.toolOutput` is supported for compatibility. MCP Apps remains primary even when `window.openai` exists.
 
-## Documentation
+Options include `baseUrl`, `mode` (`auto`, `mcp`, `local`), `consent`, `sessionId`, and a local-development `apiKey`. Use `mode="local"` for non-MCP embedded previews. Never embed server API keys in a hosted widget. `ConsentBanner` acceptance is forwarded automatically; `bridge.setConsent(record)` supports custom consent UIs. A correlation session ID is not authentication.
 
-Full docs and runnable examples live in the [main repo](https://github.com/Xyborg/ConversoKit#readme).
-
-## License
-
-Apache-2.0 © Martín Aberastegue
+For non-React usage call `bridge.connect()` and `bridge.close()` yourself. See [MCP basics](https://github.com/Xyborg/ConversoKit/blob/main/docs/mcp-basics.md).

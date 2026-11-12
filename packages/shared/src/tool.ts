@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import type { ZodType } from 'zod';
+import type { ConsentScope } from './compliance.js';
 
 export interface ToolPermissions {
   requiresAuth?: boolean;
   requiresConsent?: boolean;
   scopes?: string[];
+  consentScopes?: ConsentScope[];
 }
 
 export interface ToolAuth {
@@ -43,6 +45,14 @@ export interface Tool<I extends ZodType = ZodType, O extends ZodType = ZodType> 
   outputSchema: O;
   permissions: ToolPermissions;
   rateLimit?: RateLimitConfig;
+  /** Optional MCP Apps resource URI. */
+  widget?: string;
+  annotations?: {
+    readOnlyHint?: boolean;
+    destructiveHint?: boolean;
+    idempotentHint?: boolean;
+    openWorldHint?: boolean;
+  };
   handler(input: z.infer<I>, ctx: ToolContext): Promise<z.infer<O>>;
 }
 

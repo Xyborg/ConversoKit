@@ -6,7 +6,7 @@
   },
   "deploy": {
     "startCommand": "node apps/mcp-server/dist/index.js",
-    "healthcheckPath": "/tools",
+    "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE"
   }
 }

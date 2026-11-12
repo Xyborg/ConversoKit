@@ -1,3 +1,6 @@
+import { resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { createMcpRouter, executeTool, ToolExecutionError } from '@conversokit/mcp';
 import express from 'express';
 import cors from 'cors';
 import { randomUUID } from 'node:crypto';
@@ -12,12 +15,17 @@ import {
 import type { Tool, ToolContext } from '@conversokit/shared';
 
 import { tools } from './tools/index.js';
-import { consentMiddleware, requireConsent } from './middleware/consent.js';
+import { consentMiddleware } from './middleware/consent.js';
 import { userDataRouter } from './routes/userdata.js';
 import { webhookRouter } from './routes/webhooks.js';
 import { adminRouter } from './routes/admin.js';
 import { authRouter } from './routes/auth.js';
 
+const widgetHtmlPath =
+  process.env.CONVERSOKIT_WIDGET_HTML ??
+  (process.env.VERCEL
+    ? resolve(process.cwd(), 'apps/widget-ui/dist/index.html')
+    : new URL('../../widget-ui/dist/index.html', import.meta.url));
 const app = express();
 app.use(cors());
 
@@ -65,9 +73,10 @@ function buildContext(req: express.Request): ToolContext {
   return {
     sessionId,
     userId: req.conversokitAuth?.user?.id,
-    auth: req.conversokitAuth
-      ? { type: req.conversokitAuth.type, user: req.conversokitAuth.user }
-      : undefined,
+    auth:
+      req.conversokitAuth?.ok && (providers.length > 0 || req.conversokitAuth.user)
+        ? { type: req.conversokitAuth.type, user: req.conversokitAuth.user }
+        : undefined,
     consent: req.conversokitConsent,
     logger: console
   };
@@ -89,33 +98,34 @@ app.post('/tools/:name', async (req, res) => {
     return res.status(404).json({ error: 'Tool not found' });
   }
 
-  if (
-    tool.permissions.requiresAuth &&
-    (!req.conversokitAuth || !req.conversokitAuth.ok)
-  ) {
-    return res
-      .status(401)
-      .json({ error: 'Authentication required for this tool' });
-  }
-
-  const consentCheck = requireConsent(
-    req.conversokitConsent,
-    tool.permissions.requiresConsent
-  );
-  if (!consentCheck.ok) {
-    return res.status(412).json({ error: consentCheck.reason });
-  }
-
   try {
-    const input = tool.inputSchema.parse(req.body);
-    const ctx = buildContext(req);
-    const output = await tool.handler(input, ctx);
+    const output = await executeTool(tool, req.body, buildContext(req));
     res.json(output);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Tool execution failed';
-    res.status(400).json({ error: message });
+    res
+      .status(err instanceof ToolExecutionError ? err.status : 400)
+      .json({ error: message });
   }
 });
+
+app.use(
+  createMcpRouter({
+    name: 'conversokit',
+    version: '0.2.0',
+    tools,
+    context: buildContext,
+    allowedOrigins: (process.env.MCP_ALLOWED_ORIGINS ?? '').split(',').filter(Boolean),
+    widgets: [
+      {
+        uri: 'ui://conversokit/app-v1.html',
+        name: 'ConversoKit widgets',
+        html: () => readFile(widgetHtmlPath, 'utf8'),
+        csp: { resourceDomains: ['https://example.com'] }
+      }
+    ]
+  })
+);
 
 app.use(authRouter());
 app.use(userDataRouter());

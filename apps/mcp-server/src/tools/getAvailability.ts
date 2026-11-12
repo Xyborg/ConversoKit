@@ -14,6 +14,7 @@ export const getAvailabilityTool = defineTool({
   outputSchema: z.object({
     days: z.array(availabilitySchema)
   }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const days = await defaultAvailabilityStore.get(

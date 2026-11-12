@@ -10,7 +10,12 @@ export const submitLeadTool = defineTool({
     leadId: z.string(),
     provider: z.string()
   }),
-  permissions: { requiresAuth: false, requiresConsent: true },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+  permissions: {
+    requiresAuth: false,
+    requiresConsent: true,
+    consentScopes: ['personalData']
+  },
   async handler() {
     return {
       leadId: `lead_${Math.random().toString(36).slice(2)}`,

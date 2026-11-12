@@ -23,7 +23,12 @@ function readStored(): ConsentRecord | null {
 
 function writeStored(record: ConsentRecord): void {
   if (typeof window === 'undefined') return;
-  window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+  } catch {
+    /* Sandbox may deny storage. */
+  }
+  window.dispatchEvent(new CustomEvent('conversokit:consent', { detail: record }));
 }
 
 export interface ConsentBannerProps {
@@ -49,7 +54,8 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({
     if (record && onAccept) onAccept(record);
   }, [record, onAccept]);
 
-  if (record) return <>{children}</>;
+  if (record && scopes.every((scope) => record.scopes.includes(scope)))
+    return <>{children}</>;
 
   const handleAccept = () => {
     const next: ConsentRecord = {
@@ -80,7 +86,13 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({
       }}
     >
       <p style={{ margin: 0, fontSize: 'var(--ck-font-size-sm)' }}>{message}</p>
-      <p style={{ margin: 0, fontSize: 'var(--ck-font-size-sm)', color: 'var(--ck-muted)' }}>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 'var(--ck-font-size-sm)',
+          color: 'var(--ck-muted)'
+        }}
+      >
         Scopes: {scopes.join(', ')}
         {privacyUrl && (
           <>

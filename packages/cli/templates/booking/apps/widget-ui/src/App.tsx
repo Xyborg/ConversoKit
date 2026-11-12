@@ -47,6 +47,7 @@ const Booking: React.FC = () => {
   return (
     <>
       <AvailabilityCalendar
+        initialMonth={new Date(EXAMPLE_AVAILABILITY.date + 'T12:00:00')}
         availableDates={[EXAMPLE_AVAILABILITY.date]}
         selectedDate={date}
         onSelect={setDate}
@@ -59,7 +60,11 @@ const Booking: React.FC = () => {
         />
       )}
       {slot && (
-        <CTABanner title="Confirm reservation" primaryLabel="Confirm" onPrimary={confirm} />
+        <CTABanner
+          title="Confirm reservation"
+          primaryLabel="Confirm"
+          onPrimary={confirm}
+        />
       )}
     </>
   );
@@ -67,8 +72,11 @@ const Booking: React.FC = () => {
 
 const App: React.FC = () => (
   <BridgeProvider baseUrl="http://localhost:3000">
-    <ThemeProvider theme={lightTheme} style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}>
-      <h1>Welcome to <% projectName %></h1>
+    <ThemeProvider
+      theme={lightTheme}
+      style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
+    >
+      <h1>Welcome to {'<% projectName %>'}</h1>
       <ConsentBanner scopes={['personalData']}>
         <Booking />
       </ConsentBanner>

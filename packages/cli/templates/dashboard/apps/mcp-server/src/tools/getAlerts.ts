@@ -8,6 +8,7 @@ export const getAlertsTool = defineTool({
     severity: z.enum(['info', 'warning', 'critical']).optional()
   }),
   outputSchema: z.object({ items: z.array(alertSchema) }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const items = input.severity

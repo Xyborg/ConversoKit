@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import prompts from 'prompts';
 import { promises as fs } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { copyDir } from '../utils/copy.js';
 
@@ -24,11 +24,7 @@ function templatesRoot(): string {
 export const createCommand = new Command('create')
   .description('Scaffold a new ConversoKit app from a template.')
   .argument('<name>', 'Project directory name')
-  .option(
-    '-t, --template <name>',
-    `Template to use (${TEMPLATES.join('|')})`,
-    'commerce'
-  )
+  .option('-t, --template <name>', `Template to use (${TEMPLATES.join('|')})`, 'commerce')
   .option('--force', 'Overwrite if the directory already exists', false)
   .action(async (name: string, opts: { template: string; force: boolean }) => {
     if (!TEMPLATES.includes(opts.template as TemplateName)) {
@@ -64,12 +60,12 @@ export const createCommand = new Command('create')
 
     console.log(chalk.cyan(`▸ Scaffolding ${name} (${opts.template})…`));
     await copyDir(baseDir, target, {
-      replacements: { projectName: name, template: opts.template }
+      replacements: { projectName: basename(target), template: opts.template }
     });
     try {
       await fs.access(overlayDir);
       await copyDir(overlayDir, target, {
-        replacements: { projectName: name, template: opts.template }
+        replacements: { projectName: basename(target), template: opts.template }
       });
     } catch {
       // No overlay for this template — base is the whole thing.
@@ -84,7 +80,7 @@ export const createCommand = new Command('create')
     console.log('');
     console.log(
       chalk.dim(
-        'The MCP server runs on :3000, the widget UI on :5173. ' +
+        'MCP endpoint: http://localhost:3000/mcp; widget preview: http://localhost:5173. ' +
           'Open the widget UI to try the demo.'
       )
     );

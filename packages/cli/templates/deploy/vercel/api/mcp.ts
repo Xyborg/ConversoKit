@@ -5,6 +5,6 @@
 // Make sure `apps/mcp-server/src/index.ts` exports the app:
 //   export { app };
 // then this file imports it as `app`.
-import app from '../apps/mcp-server/dist/index.js';
+import app from '../apps/mcp-server/src/index.js';
 
 export default app;

@@ -11,6 +11,7 @@ export const getAnalyticsPanelTool = defineTool({
     'Return the assembled analytics panel (title + KPIs + optional trend series).',
   inputSchema: z.object({}),
   outputSchema: z.object({ panel: analyticsPanelSchema }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: true },
   async handler() {
     return { panel: EXAMPLE_ANALYTICS_PANEL };

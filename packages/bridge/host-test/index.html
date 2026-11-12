@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>ConversoKit MCP Apps verification</title>
+  </head>
+  <body style="font: 16px system-ui; margin: 24px">
+    <h1>MCP Apps · production widgets</h1>
+    <p>
+      Local test host using the official AppBridge and real Streamable HTTP. Checkout
+      links are recorded, not opened.
+    </p>
+    <label
+      >Template
+      <select id="template">
+        <option>commerce</option>
+        <option>booking</option>
+        <option>saas-onboarding</option>
+        <option>travel</option>
+        <option>dashboard</option>
+      </select></label
+    >
+    <button id="load">Load widget</button>
+    <p id="status">Ready</p>
+    <pre id="log" style="white-space: pre-wrap"></pre>
+    <iframe
+      id="widget"
+      title="Generated widget"
+      sandbox="allow-scripts allow-forms"
+      style="width: 100%; height: 720px; border: 1px solid #bbb"
+    ></iframe>
+    <script type="module" src="/host.ts"></script>
+  </body>
+</html>

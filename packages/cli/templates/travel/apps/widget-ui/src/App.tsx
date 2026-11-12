@@ -78,7 +78,7 @@ const App: React.FC = () => (
       theme={travelTheme}
       style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
     >
-      <h1>Welcome to <% projectName %></h1>
+      <h1>Welcome to {'<% projectName %>'}</h1>
       <ConsentBanner scopes={['analytics']}>
         <TravelPlanner />
       </ConsentBanner>

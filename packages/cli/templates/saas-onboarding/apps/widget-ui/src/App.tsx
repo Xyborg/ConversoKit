@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import {
-  CTABanner,
-  ConsentBanner,
-  MultiStepForm
-} from '@conversokit/widgets';
+import { CTABanner, ConsentBanner, MultiStepForm } from '@conversokit/widgets';
 import { EXAMPLE_LEAD_FORM } from '@conversokit/shared';
 import { ThemeProvider, modernSaasTheme } from '@conversokit/themes';
 import { BridgeProvider, useBridge } from '@conversokit/bridge';
 
 const Onboarding: React.FC = () => {
   const bridge = useBridge();
-  const [done, setDone] = useState<{ leadId: string; provider: string } | null>(
-    null
-  );
+  const [done, setDone] = useState<{ leadId: string; provider: string } | null>(null);
 
   if (done) {
     return (
@@ -45,7 +39,7 @@ const App: React.FC = () => (
       theme={modernSaasTheme}
       style={{ minHeight: '100vh', padding: 'var(--ck-spacing-4)' }}
     >
-      <h1>Welcome to <% projectName %></h1>
+      <h1>Welcome to {'<% projectName %>'}</h1>
       <ConsentBanner scopes={['personalData', 'marketing']}>
         <Onboarding />
       </ConsentBanner>

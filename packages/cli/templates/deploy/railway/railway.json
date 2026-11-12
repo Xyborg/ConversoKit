@@ -5,7 +5,7 @@
     "buildCommand": "pnpm install --frozen-lockfile && pnpm -w build"
   },
   "deploy": {
-    "startCommand": "pnpm --filter mcp-server start",
+    "startCommand": "pnpm --dir apps/mcp-server start",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",

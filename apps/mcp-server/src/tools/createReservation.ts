@@ -16,7 +16,12 @@ export const createReservationTool = defineTool({
     notes: z.string().optional()
   }),
   outputSchema: z.object({ reservation: reservationSchema }),
-  permissions: { requiresAuth: false, requiresConsent: true },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  permissions: {
+    requiresAuth: false,
+    requiresConsent: true,
+    consentScopes: ['personalData']
+  },
   async handler(input, _ctx) {
     // Find a slot across all known availability for the resource.
     const days = await defaultAvailabilityStore.get(
@@ -24,9 +29,7 @@ export const createReservationTool = defineTool({
       '0000-01-01',
       '9999-12-31'
     );
-    const slot = days
-      .flatMap((d) => d.slots)
-      .find((s) => s.id === input.slotId);
+    const slot = days.flatMap((d) => d.slots).find((s) => s.id === input.slotId);
     if (!slot) {
       throw new Error(`Slot ${input.slotId} not found`);
     }

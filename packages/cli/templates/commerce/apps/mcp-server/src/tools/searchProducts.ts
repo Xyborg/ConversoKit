@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  productSchema,
-  EXAMPLE_PRODUCTS,
-  defineTool
-} from '@conversokit/shared';
+import { productSchema, EXAMPLE_PRODUCTS, defineTool } from '@conversokit/shared';
 
 export const searchProductsTool = defineTool({
   name: 'search_products',
@@ -13,6 +9,7 @@ export const searchProductsTool = defineTool({
     limit: z.number().int().min(1).max(50).optional()
   }),
   outputSchema: z.object({ items: z.array(productSchema) }),
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   permissions: { requiresAuth: false },
   async handler(input) {
     const { query, limit = 10 } = input;
